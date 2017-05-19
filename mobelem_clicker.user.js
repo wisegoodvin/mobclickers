@@ -112,4 +112,10 @@ $(function(){
 		// дуэли активны
 		if($(".bttn.duels").length && $(".bttn.duels").text().toLowerCase().indexOf("дуэли:") > -1) cl($(".bttn.duels"));
 	}
+
+	// действия на арене
+	if(/^\/survival\//.test(self.location.pathname)) {
+		// заглушка
+	}
+	
 });
