@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Повелители стихий. Кликер
 // @namespace    https://ok.elem.mobi/
-// @version      0.2
+// @version      0.2.1
 // @description  Проводит дуэли (пока что)
 // @author       GoodVin
 // @match        https://ok.elem.mobi/*
