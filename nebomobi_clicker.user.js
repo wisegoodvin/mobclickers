@@ -7,6 +7,8 @@
 // @include      https://odkl.vnebo.mobi/*
 // @match        https://odkl.vnebo.mobi/*
 // @require      http://code.jquery.com/jquery-3.2.1.slim.min.js
+// @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/nebomobi_clicker.user.js
+// @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/nebomobi_clicker.user.js
 // @grant        none
 // ==/UserScript==
 
