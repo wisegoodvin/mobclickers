@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         Повелители стихий. Кликер
 // @namespace    https://ok.elem.mobi/
-// @version      0.1
+// @version      0.2
 // @description  Проводит дуэли (пока что)
 // @author       GoodVin
 // @match        https://ok.elem.mobi/*
+// @include      https://ok.elem.mobi/*
 // @require      http://code.jquery.com/jquery-3.2.1.slim.min.js
-// @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/mobielem_clicker.user.js
-// @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/mobielem_clicker.user.js
+// @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/mobelem_clicker.user.js
+// @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/mobelem_clicker.user.js
 // @grant        none
 // ==/UserScript==
 
@@ -25,8 +26,9 @@ function cl(sel, timer1, timer2) {
 }
 
 $(function(){
+
 	// действия для дуэлей
-	if(/\/duel\//.test(self.location.pathname)) {
+	if(/^\/duel\//.test(self.location.pathname)) {
 		// сейчас идёт бой
 		if($(".w3card").length) {
 			var cards = [];
@@ -48,7 +50,7 @@ $(function(){
 				}
 			}
 			if(idx15 >= 0) {
-				console.log('найден рейтинг 1.5 в картах: '+cards[idx15][0]+' '+cards[idx15][2]);
+				console.log('Максимальный урон, наносимый при рейтинге 1.5 будет у пары №'+(idx15+1)+': '+(cards[idx15][2]-cards[idx15][0]));
 				cl($(cards[idx15][3]).find("a:eq(1)"));
 			}
 			// ищем карты с рейтингом 1
@@ -62,7 +64,7 @@ $(function(){
 					}
 				}
 				if(idx1 >= 0) {
-					console.log('найден рейтинг 1 в картах: '+cards[idx1][0]+' '+cards[idx1][2]);
+					console.log('Максимальный урон, наносимый при рейтинге 1 будет у пары №'+(idx1+1)+': '+(cards[idx1][2]-cards[idx1][0]));
 					cl($(cards[idx1][3]).find("a:eq(1)"));
 				}
 				// ищем карты с рейтинго 0.5 с наименьшим уроном по игроку
@@ -77,20 +79,21 @@ $(function(){
 					}
 				}
 				if(idx05 >= 0) {
-					console.log('найден рейтинг 0.5 в картах: '+cards[idx05][0]+' '+cards[idx05][2]);
+					console.log('Максимальный урон, наносимый при рейтинге 0.5 будет у пары №'+(idx05+1)+': '+(cards[idx05][2]-cards[idx05][0]));
 					cl($(cards[idx05][3]).find("a:eq(1)"));
 				}
 			}
 		}
 		// бой окончен - предложение вступить в дуэль ещё раз
-		if($(".cntr a:not(.orange)").has(".lbl").length && $(".cntr a:not(.orange)").has(".lbl").text().trim().indexOf("Еще") > -1) cl($(".cntr a:not(.orange)").has(".lbl"));
+		if($(".cntr a:not(.orange)").has(".lbl").length && $(".cntr a:not(.orange)").has(".lbl").text().trim().toLowerCase().indexOf("еще") > -1) cl($(".cntr a:not(.orange)").has(".lbl"));
 		// напасть
-		if($(".cntr a:not(.grey)").has(".lbl").length && $(".cntr a:not(.grey)").has(".lbl").text().trim().indexOf("Напасть") > -1) cl($(".cntr a:not(.grey)").has(".lbl"));
+		if($(".cntr a:not(.grey)").has(".lbl").length && $(".cntr a:not(.grey)").has(".lbl").text().trim().toLowerCase().indexOf("напасть") > -1) cl($(".cntr a:not(.grey)").has(".lbl"));
 		// смена противника - перезагрузка страницы
-		else if(/\/duel\/$/.test(self.location.href)) setTimeout(function(){ self.location.reload(); }, Math.random() * (2000 - 1000) + 1000);
+		else if("/duel/" == self.location.pathname) setTimeout(function(){ self.location.reload(); }, Math.random() * (2000 - 1000) + 1000);
 		// перерыв в дуэлях
-		if(/\/duel\/$/.test(self.location.href) && $(".fttl").length && $(".fttl").text().indexOf("Перерыв") > -1) cl($(".small[onclick]"));
+		if("/duel/" == self.location.pathname && $(".fttl").length && $(".fttl").text().toLowerCase().indexOf("перерыв") > -1) cl($(".small[onclick]"));
 	}
+
 	// действия в корне
 	if("/" == self.location.pathname) {
 		// таймер на дуэли
@@ -103,10 +106,10 @@ $(function(){
 				if(ar[i+1] == 'с') secs += parseInt(ar[i], 10);
 				if(ar[i+1] == 'c') secs += parseInt(ar[i], 10);
 			}
-			console.log('таймер на '+secs+' секунд до дуэли!');
+			console.log('Установлен таймер на '+secs+' секунд до начала дуэлей!');
 			setTimeout(function(){ cl($("#duels_restore_time").closest("a")); }, secs * 1000);
 		}
 		// дуэли активны
-		if($(".bttn.duels").length && $(".bttn.duels").text().indexOf("Дуэли:") > -1) cl($(".bttn.duels"));
+		if($(".bttn.duels").length && $(".bttn.duels").text().toLowerCase().indexOf("дуэли:") > -1) cl($(".bttn.duels"));
 	}
 });
