@@ -46,7 +46,7 @@ $(function(){
 	}
 
 	// действия в холле
-	if (/^\/home/.test(self.location.pathname)) {
+	if (/^\/home/.test(self.location.pathname) || /login\/?$/.test(self.location.pathname)) {
 		// развернуть этажи
 		/*if($('a.nshd').length) {
 			$('a.nshd').each(function(){
