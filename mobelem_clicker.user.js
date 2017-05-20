@@ -92,6 +92,8 @@ $(function(){
 		else if("/duel/" == self.location.pathname) setTimeout(function(){ self.location.reload(); }, Math.random() * (2000 - 1000) + 1000);
 		// перерыв в дуэлях
 		if("/duel/" == self.location.pathname && $(".fttl").length && $(".fttl").text().toLowerCase().indexOf("перерыв") > -1) cl($(".small[onclick]"));
+        // Новая дуэль
+        if("Новая дуэль" == $(".cntr .be .lbl").text().trim()) cl($(".cntr .btn"));
 	}
 
 	// действия в корне
