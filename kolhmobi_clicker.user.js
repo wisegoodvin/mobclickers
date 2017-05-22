@@ -9,11 +9,14 @@
 // @require      https://code.jquery.com/jquery-3.2.1.slim.min.js
 // @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/kolhmobi_clicker.user.js
 // @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/kolhmobi_clicker.user.js
-// @grant        none
+// @grant        unsafeWindow
+// @grant        GM_setValue
+// @grant        GM_getValue
 // @icon         http://kolhoz.mobi/favicon.ico
 // ==/UserScript==
 
 var clicktimer = false;
+var scriptenabled = true;
 // прочие мелкие функции
 function rand(num1, num2) { return Math.round(Math.random() * (num2 - num1) + num1); }
 function hastxt(sel, txt) { return $(sel).text().toLowerCase().replace(/\s/g,'').indexOf(txt.toLowerCase().replace(/\s/g,'')) > -1; }
@@ -52,9 +55,16 @@ function cl(sel, timer1, timer2) {
 	return false;
 }
 
+unsafeWindow.endis = function() {
+	GM_setValue("scriptenabled", !scriptenabled);
+	self.location.reload();
+}
+
 $(function(){
+	scriptenabled = GM_getValue("scriptenabled", true);
 	// сначала добавляем кнопку
-	
+	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(scriptenabled?'green':'red')+';" onclick="endis();return false;" title="Включить / выключить кликер">[ в'+(scriptenabled?'':'ы')+'кл ]</a>').appendTo("body");
+	if(!scriptenabled) return false;
 	// действия на главном экране
 	$(".block .ptm > ul > li a").each(function(){
 		// покупку грядки пропускаем
