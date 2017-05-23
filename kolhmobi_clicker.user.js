@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      1.0
+// @version      1.0.1
 // @description  Высаживает, поливает, удобряет и продаёт растения
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
@@ -63,7 +63,7 @@ unsafeWindow.endis = function() {
 $(function(){
 	scriptenabled = GM_getValue("scriptenabled", true);
 	// сначала добавляем кнопку
-	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(scriptenabled?'green':'red')+';" onclick="endis();return false;" title="Включить / выключить кликер">[ в'+(scriptenabled?'':'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(scriptenabled ? 'lime' : 'red')+';" onclick="endis();return false;" title="Включить / выключить кликер">[ в'+(scriptenabled ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	if(!scriptenabled) return false;
 	// действия на главном экране
 	$(".block .ptm > ul > li a").each(function(){
