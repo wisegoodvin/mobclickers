@@ -1,91 +1,129 @@
 // ==UserScript==
 // @name         Небоскребы: онлайн. Кликер
 // @namespace    https://odkl.vnebo.mobi/
-// @version      1.1
-// @description  Поднимает посетителей на лифте (пока что)
+// @version      1.2
+// @description  Поднимает посетителей на лифте, делает операции с этажами
 // @author       GoodVin
-// @match        https://odkl.vnebo.mobi/*
+// @match        *://*.vnebo.mobi/*
+// @match        *://vnebo.mobi/*
 // @require      https://code.jquery.com/jquery-3.2.1.slim.min.js
 // @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/nebomobi_clicker.user.js
 // @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/nebomobi_clicker.user.js
-// @grant        none
+// @icon         https://vnebo.mobi/favicon.ico
+// @grant        unsafeWindow
+// @grant        GM_setValue
+// @grant        GM_getValue
 // ==/UserScript==
 
-// клик
+// jQuery plugins
+jQuery.expr[':'].text = function(a, i, m) {
+	return jQuery(a).text().replace(/\s/g,'').toLowerCase()
+		.indexOf(m[3].replace(/\s/g,'').toLowerCase()) >= 0;
+};
+
 var clicktimer = false;
+// разные мелкие функции
+function rand(num1, num2) { return Math.round(Math.random() * (num2 - num1) + num1); }
+function hastxt(sel, txt) { return $(sel).text().toLowerCase().replace(/\s/g,'').indexOf(txt.toLowerCase().replace(/\s/g,'')) > -1; }
+function isUndef(elem) { return typeof elem == "undefined"; }
+function empty(txt) { return (isUndef(txt) || txt === '' || txt === null); }
+function str2secs(str) {
+	str = str.toLowerCase();
+	var res = 0;
+	var a = str.split(' ');
+	if(!a.length) return res;
+	for(i=0;i<a.length;i+=2) {
+		try {
+			var l = a[i+1].substring(0,1);
+				 if('ч' == l) res += parseInt(a[i],10) * 3600;
+			else if('м' == l) res += parseInt(a[i],10) * 60;
+			else if('с' == l) res += parseInt(a[i],10);
+		} catch(e) { res += 0; }
+	}
+	return res;
+}
+function go(url, timer1, timer2) {
+	if(clicktimer) return false;
+	if(empty(timer1)) timer1 = 500;
+	if(empty(timer2)) timer2 = timer1;
+    var time = rand(timer1, timer2);
+	setTimeout(function(){ self.location.href = url; }, time);
+	return false;
+}
+
+// клик
 function cl(sel, timer1, timer2) {
 	if(clicktimer) return false;
 	var clickEvent = document.createEvent ('MouseEvents');
 	clickEvent.initEvent ('click', true, true);
 	if(timer1 === undefined) timer1 = 500;
 	if(timer2 === undefined) timer2 = 750;
-	setTimeout(function(){ (sel instanceof jQuery ? sel[0] : sel).dispatchEvent (clickEvent); }, Math.random() * (timer2 - timer1) + timer1);
+	setTimeout(function(){
+		try {
+			(sel instanceof jQuery ? sel[0] : sel).dispatchEvent (clickEvent);
+		} catch(e) {
+			self.location.reload();
+		}
+	}, rand(timer1, timer2));
 	clicktimer = true;
 	return false;
 }
 
+// функция для отключения кликера - прописывается в родное окно
+unsafeWindow.endis = function() {
+	GM_setValue("scriptenabled", !scriptenabled);
+	self.location.reload();
+}
+
 $(function(){
+	scriptenabled = GM_getValue("scriptenabled", true);
+	// сначала добавляем кнопку
+	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(scriptenabled ? 'lime' : 'red')+';" onclick="endis();return false;" title="Включить / выключить кликер">[ в'+(scriptenabled ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	if(!scriptenabled) return false;
+	// развернуть этажи
+	var explvl = $(".tdn:text(показать этажи)");
+	if(explvl.length) return cl(explvl);
 
-	// действия в лифте
-	if (/^\/lift/.test(self.location.pathname) || /liftState/i.test(self.location.href)) {
-		// клик на ссылке "поднять на этаж"
-		if($('a.tdu').length) {
-			$('a.tdu').each(function(){
-				var txt = $(this).text();
-				if(txt.toLowerCase().indexOf("поднять лифт") > -1) return cl($(this));
-			});
-		}
-		// клик на ссылке "получить чаевые"
-		if($('a.tdu').length) {
-			$('a.tdu').each(function(){
-				var txt = $(this).text();
-				if(txt.toLowerCase().indexOf("получить чаевые") > -1) return cl($(this));
-			});
+	// действия с этажами из холла
+	if("/" == self.location.pathname || "/home" == self.location.pathname || /login\/?$/i.test(self.location.pathname)) {
+		// есть какие-то действия
+		var flrs = $(".tlbr a[href*='floor']:text(\()");
+		if(flrs.length) return cl(flrs);
+		// есть с пассажиры
+		var elev = $(".tlbr a[href*='lift']:text(\()");
+		if(elev.length) return cl(elev);
+	}
+
+	// действия с этажами
+	if(/\/floors\//i.test(self.location.pathname) && $(".tower a.tdu").length) return cl($(".tower a.tdu")[0]);
+
+	// действия с этажом
+	if(/\/floor\//i.test(self.location.pathname)) {
+		// закупки
+		if($(".prd a.tdu:text(купить)").length) return cl($(".prd a.tdu:text(купить):last"));
+	}
+
+	// у лифта есть ожидающие
+	if(/^\/lift/i.test(self.location.pathname)) {
+		// закупки
+		if($(".lift").length) {
+			if($(".lift a.tdu:text(поднять)").length) return cl($(".lift a.tdu:text(поднять)"));
+			if($(".lift a.tdu:text(чаевые)").length) return cl($(".lift a.tdu:text(чаевые)"));
 		}
 	}
 
-    // заказ товара
-    if ($(".tower .flst:eq(0)").text().toLowerCase().indexOf("выручку") > -1) return cl($(".tower .flst a.tdu:eq(0)"));
-    // выложить товар
-    if ($(".tower .flst:eq(0)").text().toLowerCase().indexOf("выложить") > -1) return cl($(".tower .flst a.tdu:eq(0)"));
-    // закупить товар
-    if ($(".tower .flst:eq(0)").text().toLowerCase().indexOf("закупить") > -1) return cl($(".tower .flst a.tdu:eq(0)"));
-    // закупка конкретного товара
-    if($(".prd").text().replace(/\s{2,}/g,' ').toLowerCase().indexOf("закупить за") > -1) return cl($(".prd .action:last a.tdu:eq(0)"));
-
-	// действия в холле
-	if (/^\/home/.test(self.location.pathname) || /login\/?$/.test(self.location.pathname) || "/" == self.location.pathname) {
-		// развернуть этажи
-		/*if($('a.nshd').length) {
-			$('a.nshd').each(function(){
-				var txt = $(this).text();
-				if(txt.indexOf("Показать этажи") > -1) return cl($(this));
-			});
-		}*/
-        $(".tlbr > a").each(function(i){
-            // поднимаем людей на лифте (клик на кнопке в холле)
-            if(/lift\./.test($(this).find("img")[0].src) || /lift_vip\./.test($(this).find("img")[0].src)) return cl($(this));
-            // в холле - заказ товара
-            if(/empty\./.test($(this).find("img")[0].src)) return cl($(this));
-            // в холле - выкладка товара
-            if(/stocked\./.test($(this).find("img")[0].src)) return cl($(this));
-            // в холле - забрать бабки за товар
-            if(/sold\./.test($(this).find("img")[0].src)) return cl($(this));
-        });
-		/*if($('a.tdn').has('.amount').length) {
-			return cl($('a.tdn').has('.amount'));
-		}*/
-	}
-
-	// и в самом конце - рефреш через определённое время
-	/*if($(".vs").text().toLowerCase().replace(/\s/g,'').indexOf("посетителя!") > -1) {
-        var t = $(".vs .flbdy .flst .amount").text().split(" ");
-		var secs = 3;
-		if(t.length == 4) secs = secs + parseInt(t[0], 10) * 60 + parseInt(t[2], 10);
-		else if('м' == t[1].substring(0,1)) secs = secs + parseInt(t[0], 10) * 60;
-		else secs = secs + parseInt(t[0], 10);
-		console.log('Запущен таймер ожидания посетителей на '+secs+' секунд.');
-		setTimeout(function(){ self.location.reload(); }, secs * 1000);
-    // в самом  конце - таймер на рандомный клик
-	} else */return cl($(".hdr:eq(0)"), 20000, 30000);
+	// таймер на обновления
+	var timer = null;
+	var flmin = '';
+	$("span[id^='time']").each(function(i){
+		var t = str2secs($(this).text());
+		if(t > 0 && (empty(timer) || t < timer)) {
+			timer = t;
+			flmin = $(this).closest(".flbdy").prev().text().trim().replace(/\n/,' ');
+		}
+	});
+	if(!$(".tower").length || empty(timer)) timer = 10;
+	timer += 3;
+	console.log('Никаких действий не предусмотрено. Установлен таймер перехода на главную страницу на '+timer+' сек.'+(!empty(flmin) ? ' (у этажа '+flmin+')' : ''));
+	return go('/', timer * 1000);
 });
