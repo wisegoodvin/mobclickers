@@ -1,30 +1,26 @@
 // ==UserScript==
 // @name         Повелители стихий. Кликер
 // @namespace    https://ok.elem.mobi/
-// @version      0.3
+// @version      0.4
 // @description  Проводит дуэли (пока что)
 // @author       GoodVin
-// @match        https://ok.elem.mobi/*
+// @match        *://*.elem.mobi/*
+// @match        *://elem.mobi/*
 // @require      http://code.jquery.com/jquery-3.2.1.slim.min.js
+// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?v=1
 // @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/mobelem_clicker.user.js
 // @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/mobelem_clicker.user.js
-// @grant        none
+// @icon         https://elem.mobi/img/favicon.ico
+// @grant        unsafeWindow
+// @grant        GM_setValue
+// @grant        GM_getValue
 // ==/UserScript==
 
-// клик
-var clicktimer = false;
-function cl(sel, timer1, timer2) {
-	if(clicktimer) return false;
-	var clickEvent = document.createEvent ('MouseEvents');
-	clickEvent.initEvent ('click', true, true);
-	if(timer1 === undefined) timer1 = 500;
-	if(timer2 === undefined) timer2 = 750;
-	setTimeout(function(){ (sel instanceof jQuery ? sel[0] : sel).dispatchEvent (clickEvent); }, Math.random() * (timer2 - timer1) + timer1);
-	clicktimer = true;
-	return false;
-}
-
 $(function(){
+	scriptenabled = GM_getValue("scriptenabled", true);
+	// сначала добавляем кнопку
+	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(scriptenabled ? 'lime' : 'red')+';" onclick="endis();return false;" title="Включить / выключить кликер">[ в'+(scriptenabled ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	if(!scriptenabled) return false;
 
 	// действия для дуэлей
 	if(/^\/duel\//.test(self.location.pathname)) {
