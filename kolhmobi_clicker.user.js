@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      1.0.1
+// @version      1.1
 // @description  Высаживает, поливает, удобряет и продаёт растения
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
 // @match        *://kolhoz.mobi/*
 // @require      https://code.jquery.com/jquery-3.2.1.slim.min.js
+// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?v=1
 // @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/kolhmobi_clicker.user.js
 // @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/kolhmobi_clicker.user.js
 // @grant        unsafeWindow
@@ -14,51 +15,6 @@
 // @grant        GM_getValue
 // @icon         http://kolhoz.mobi/favicon.ico
 // ==/UserScript==
-
-var clicktimer = false;
-var scriptenabled = true;
-// прочие мелкие функции
-function rand(num1, num2) { return Math.round(Math.random() * (num2 - num1) + num1); }
-function hastxt(sel, txt) { return $(sel).text().toLowerCase().replace(/\s/g,'').indexOf(txt.toLowerCase().replace(/\s/g,'')) > -1; }
-function isUndef(elem) { return typeof elem == "undefined"; }
-function empty(txt) { return (isUndef(txt) || txt === '' || txt === null); }
-function str2secs(str) {
-	str = str.toLowerCase();
-	var res = 0;
-	var a = str.split(' ');
-	for(i=0;i<a.length;i+=2) {
-		var l = a[i+1].substring(0,1);
-			 if('ч' == l) res += parseInt(a[i],10) * 3600;
-		else if('м' == l) res += parseInt(a[i],10) * 60;
-		else if('с' == l) res += parseInt(a[i],10);
-	}
-	return res;
-}
-function go(url, timer1, timer2) {
-	if(clicktimer) return false;
-	if(empty(timer1)) timer1 = 500;
-	if(empty(timer2)) timer2 = timer1;
-    var time = rand(timer1, timer2);
-	setTimeout(function(){ self.location.href = url; }, time);
-	return false;
-}
-
-// клик
-function cl(sel, timer1, timer2) {
-	if(clicktimer) return false;
-	var clickEvent = document.createEvent ('MouseEvents');
-	clickEvent.initEvent ('click', true, true);
-	if(empty(timer1)) timer1 = 500;
-	if(empty(timer2)) timer2 = timer1;
-	setTimeout(function(){ (sel instanceof jQuery ? sel[0] : sel).dispatchEvent (clickEvent); }, rand(timer1, timer2));
-	clicktimer = true;
-	return false;
-}
-
-unsafeWindow.endis = function() {
-	GM_setValue("scriptenabled", !scriptenabled);
-	self.location.reload();
-}
 
 $(function(){
 	scriptenabled = GM_getValue("scriptenabled", true);
