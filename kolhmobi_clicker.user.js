@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      1.1
+// @version      1.1.1
 // @description  Высаживает, поливает, удобряет и продаёт растения
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
 // @match        *://kolhoz.mobi/*
 // @require      https://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?v=1
+// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?v=2
 // @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/kolhmobi_clicker.user.js
 // @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/kolhmobi_clicker.user.js
 // @grant        unsafeWindow
