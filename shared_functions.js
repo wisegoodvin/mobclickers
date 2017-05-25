@@ -43,8 +43,8 @@ function cl(sel, timer1, timer2) {
 	if(clicktimer) return false;
 	var clickEvent = document.createEvent ('MouseEvents');
 	clickEvent.initEvent ('click', true, true);
-	if(timer1 === undefined) timer1 = 100;
-	if(timer2 === undefined) timer2 = 250;
+	if(timer1 === undefined) timer1 = 500;
+	if(timer2 === undefined) timer2 = 750;
 	setTimeout(function(){
 		try {
 			(sel instanceof jQuery ? sel[0] : sel).dispatchEvent (clickEvent);
