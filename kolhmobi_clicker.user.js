@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      1.1.1
+// @version      1.2
 // @description  Высаживает, поливает, удобряет и продаёт растения
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
 // @match        *://kolhoz.mobi/*
 // @require      https://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?v=2
+// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?v=3
 // @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/kolhmobi_clicker.user.js
 // @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/kolhmobi_clicker.user.js
 // @grant        unsafeWindow
@@ -18,8 +18,10 @@
 
 $(function(){
 	scriptenabled = GM_getValue("scriptenabled", true);
-	// сначала добавляем кнопку
-	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(scriptenabled ? 'lime' : 'red')+';" onclick="endis();return false;" title="Включить / выключить кликер">[ в'+(scriptenabled ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	ambarsell = GM_getValue("ambarsell", true);
+	// сначала добавляем кнопки
+	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(scriptenabled ? 'lime' : 'red')+';" onclick="endis();return false;" title="Включить / выключить кликер">[ скрипт: в'+(scriptenabled ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:30px;right:20px;font-size:10pt;color:'+(ambarsell ? 'lime' : 'red')+';" onclick="endis(\'ambarsell\');return false;" title="Включить / выключить продажи из амбара (шанс - 10%)">[ автопродажи: в'+(ambarsell ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	if(!scriptenabled) return false;
 	// действия на главном экране
 	$(".block .ptm > ul > li a").each(function(){
@@ -38,15 +40,17 @@ $(function(){
 	});
     if(clicktimer) return false;
 
-    // вход в амбар (шанс зайти туда - 10%)
-    if(1 == rand(1, 10)) return go('/warehouse');
-    // действия в амбаре
-    if('/warehouse' == self.location.pathname) {
-        console.log('Продажа из амбара');
-        $(".block a").each(function(){ if(hastxt(this, "продать")) return cl(this); });
-        if(hastxt(".block", "амбар пуст")) return go('/');
+    if(ambarsell) {
+        // вход в амбар (шанс зайти туда - 10%)
+        if(1 == rand(1, 10)) return go('/warehouse');
+        // действия в амбаре
+        if('/warehouse' == self.location.pathname) {
+            console.log('Продажа из амбара');
+            $(".block a").each(function(){ if(hastxt(this, "продать")) return cl(this); });
+            if(hastxt(".block", "амбар пуст")) return go('/');
+        }
+        if(clicktimer) return false;
     }
-    if(clicktimer) return false;
 
     // запуск таймера
     var txt = $(".ptm > ul > li").text().toLowerCase().replace(/\n/g,' ').replace(/\r/g,'').replace(/\s{1,}/g,' ').trim();
