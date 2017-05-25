@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         Повелители стихий. Кликер
 // @namespace    https://ok.elem.mobi/
-// @version      0.4
+// @version      0.4.1
 // @description  Проводит дуэли (пока что)
 // @author       GoodVin
 // @match        *://*.elem.mobi/*
 // @match        *://elem.mobi/*
 // @require      http://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?v=1
+// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?v=2
 // @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/mobelem_clicker.user.js
 // @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/mobelem_clicker.user.js
 // @icon         https://elem.mobi/img/favicon.ico
