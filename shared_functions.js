@@ -57,7 +57,9 @@ function cl(sel, timer1, timer2) {
 }
 
 // функция для отключения кликера - прописывается в родное окно
-unsafeWindow.endis = function() {
-	GM_setValue("scriptenabled", !scriptenabled);
+unsafeWindow.endis = function(varname) {
+	if(empty(varname)) varname = "scriptenabled";
+	var varval = eval(varname);
+	GM_setValue(varname, !varval);
 	self.location.reload();
 }
