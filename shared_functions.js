@@ -33,7 +33,7 @@ function go(url, timer1, timer2) {
 	if(clicktimer) return false;
 	if(empty(timer1)) timer1 = 500;
 	if(empty(timer2)) timer2 = timer1;
-    var time = rand(timer1, timer2);
+	var time = rand(timer1, timer2);
 	setTimeout(function(){ self.location.href = url; }, time);
 	return false;
 }
@@ -56,10 +56,16 @@ function cl(sel, timer1, timer2) {
 	return false;
 }
 
+// основной объект с настройками
+var options = {scriptenabled: true};
+
 // функция для отключения кликера - прописывается в родное окно
-unsafeWindow.endis = function(varname) {
+unsafeWindow.tglbool = function(varname) {
 	if(empty(varname)) varname = "scriptenabled";
-	var varval = eval(varname);
-	GM_setValue(varname, !varval);
+	var varval = !options[varname];
+	GM_setValue("options", options);
 	self.location.reload();
 }
+
+// инициализация массива с настройками
+$(function(){ options = GM_getValue("options", options); });
