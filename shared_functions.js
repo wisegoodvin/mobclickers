@@ -63,9 +63,8 @@ var options = {scriptenabled: true};
 unsafeWindow.tglbool = function(varname) {
 	if(empty(varname)) varname = "scriptenabled";
 	options[varname] = !options[varname];
-	console.log(options);
 	GM_setValue("options", options);
-	//self.location.reload();
+	self.location.reload();
 }
 
 // инициализация массива с настройками
