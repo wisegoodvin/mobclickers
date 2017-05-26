@@ -61,7 +61,7 @@ var options = {scriptenabled: true};
 
 // функция для отключения кликера - прописывается в родное окно
 unsafeWindow.tglbool = function(varname) {
-	if(empty(varname)) varname = "scriptenabled";
+	if(empty(varname)) return console.error("Необходимо указать переменную!");
 	options[varname] = !options[varname];
 	GM_setValue("options", options);
 	self.location.reload();
