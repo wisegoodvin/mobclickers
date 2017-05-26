@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         Небоскребы: онлайн. Кликер
 // @namespace    https://odkl.vnebo.mobi/
-// @version      2.0.1
+// @version      2.2
 // @description  Поднимает посетителей на лифте, делает операции с этажами
 // @author       GoodVin
 // @match        *://*.vnebo.mobi/*
 // @match        *://vnebo.mobi/*
 // @require      https://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?v=2
+// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js
 // @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/nebomobi_clicker.user.js
 // @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/nebomobi_clicker.user.js
 // @icon         https://vnebo.mobi/favicon.ico
@@ -17,23 +17,34 @@
 // ==/UserScript==
 
 $(function(){
-	scriptenabled = GM_getValue("scriptenabled", true);
 	// сначала добавляем кнопку
-	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(scriptenabled ? 'lime' : 'red')+';" onclick="endis();return false;" title="Включить / выключить кликер">[ в'+(scriptenabled ? '' : 'ы')+'кл ]</a>').appendTo("body");
-	if(!scriptenabled) return false;
+	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(options.scriptenabled ? 'lime' : 'red')+';" onclick="tglbool(\'scriptenabled\');return false;" title="Включить / выключить кликер">[ в'+(options.scriptenabled ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	if(!options.scriptenabled) return false;
+
 	// развернуть этажи
 	var explvl = $(".tdn:text(показать этажи)");
 	if(explvl.length) return cl(explvl);
 
 	// действия с этажами из холла
 	if(("/" == self.location.pathname && !/:floorPanel:/.test(self.location.href)) || "/home" == self.location.pathname || /login\/?$/i.test(self.location.pathname)) {
-        	console.log("Действия на главном экране");
-		// есть какие-то действия
+		console.log("Действия на главном экране");
+		// есть выполненные задания
+		var quests = $("a[href*='quest']").has("img[src*='quests']");
+		if(quests.length) cl(quests);
+		// есть какие-то действия с этажами
 		var flrs = $(".tlbr a[href*='floor']:text(\()");
 		if(flrs.length) return cl(flrs);
-		// есть с пассажиры
+		// есть пассажиры
 		var elev = $(".tlbr a[href*='lift']:text(\()");
 		if(elev.length) return cl(elev);
+	}
+
+	// действия с квестами
+	if(/\/quests/i.test(self.location.pathname)) {
+		console.log("Есть награда за квесты?");
+		var q = $("a.btng:text(Получить награду)");
+		if(q.length) return cl(q[0]);
+		else return cl($(".hdr"));
 	}
 
 	// действия с этажами
