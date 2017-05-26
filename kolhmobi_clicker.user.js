@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      1.2
+// @version      1.2.1
 // @description  Высаживает, поливает, удобряет и продаёт растения
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
@@ -68,4 +68,9 @@ $(function(){
         console.log('Никаких действие не сделано - запущен таймер на '+mintime+' сек. до ближайшего действия.');
         return go("/", mintime * 1000);
     }
+
+	if(/Error/i.test(self.location.href)) {
+		console.log("Мы на странице с ошибкой - запущен таймер на переход к основному окну");
+		return go('/', rand(3000,5000));
+	}
 });
