@@ -62,9 +62,10 @@ var options = {scriptenabled: true};
 // функция для отключения кликера - прописывается в родное окно
 unsafeWindow.tglbool = function(varname) {
 	if(empty(varname)) varname = "scriptenabled";
-	!options[varname] = !options[varname];
+	options[varname] = !options[varname];
+	console.log(options);
 	GM_setValue("options", options);
-	self.location.reload();
+	//self.location.reload();
 }
 
 // инициализация массива с настройками
