@@ -177,8 +177,8 @@ unsafeWindow.getdmg = this.getdmg = function(idx) {
 $(function(){
 	// сначала добавляем кнопки
 	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(options.scriptenabled ? 'lime' : 'red')+';" onclick="tglbool(\'scriptenabled\');return false;" title="Включить / выключить кликер">[ в'+(options.scriptenabled ? '' : 'ы')+'кл ]</a>').appendTo("body");
-	$('<a href="#" style="position:absolute;z-index:10000;top:30px;right:20px;font-size:10pt;color:'+(!options.noarena ? 'lime' : 'red')+';" onclick="tglbool(\'noarena\');return false;" title="Включить / выключить автоарену">[ арена: в'+(!options.noarena ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	if(!options.scriptenabled) return false;
+	$('<a href="#" style="position:absolute;z-index:10000;top:30px;right:20px;font-size:10pt;color:'+(!options.noarena ? 'lime' : 'red')+';" onclick="tglbool(\'noarena\');return false;" title="Включить / выключить автоарену">[ арена: в'+(!options.noarena ? '' : 'ы')+'кл ]</a>').appendTo("body");
 
 	// действия для дуэлей
 	if(/^\/duel\//.test(self.location.pathname)) {
@@ -232,6 +232,7 @@ $(function(){
 				setTimeout(function(){ return cl($("#duels_restore_time").closest("a")); }, secs * 1000);
 			} else {
 				// прочие действия на главном экране
+				if($(".fttl:eq(0):text(ежедневная)").length) return $("a[href*='dailyreward']").cl();
 			}
 		}
 	}
