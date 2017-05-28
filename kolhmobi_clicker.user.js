@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      1.2.1
+// @version      1.3
 // @description  Высаживает, поливает, удобряет и продаёт растения
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
@@ -15,14 +15,21 @@
 // @grant        GM_getValue
 // @icon         http://kolhoz.mobi/favicon.ico
 // ==/UserScript==
+unsafeWindow.$ = jQuery;
 
 $(function(){
-	scriptenabled = GM_getValue("scriptenabled", true);
-	ambarsell = GM_getValue("ambarsell", true);
 	// сначала добавляем кнопки
-	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(scriptenabled ? 'lime' : 'red')+';" onclick="endis();return false;" title="Включить / выключить кликер">[ скрипт: в'+(scriptenabled ? '' : 'ы')+'кл ]</a>').appendTo("body");
-	$('<a href="#" style="position:absolute;z-index:10000;top:30px;right:20px;font-size:10pt;color:'+(ambarsell ? 'lime' : 'red')+';" onclick="endis(\'ambarsell\');return false;" title="Включить / выключить продажи из амбара (шанс - 10%)">[ автопродажи: в'+(ambarsell ? '' : 'ы')+'кл ]</a>').appendTo("body");
-	if(!scriptenabled) return false;
+	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(options.scriptenabled ? 'lime' : 'red')+';" onclick="tglbool(\'scriptenabled\');return false;" title="Включить / выключить кликер">[ скрипт: в'+(options.scriptenabled ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	if(!options.scriptenabled) return false;
+	$('<a href="#" style="position:absolute;z-index:10000;top:30px;right:20px;font-size:10pt;color:'+(options.ambarsell ? 'lime' : 'red')+';" onclick="tglbool(\'ambarsell\');return false;" title="Включить / выключить продажи из амбара (шанс - 10%)">[ автопродажи: в'+(options.ambarsell ? '' : 'ы')+'кл ]</a>').appendTo("body");
+
+	// кончилось бабло
+	if($("a:text(продать товар из амбара)").length) {
+		console.log("Не хватает денег на покупку семян/удобрений!");
+		if(options.ambarsell) return cl($("a:text(продать товар из амбара)"));
+		else return false;
+	}
+
 	// действия на главном экране
 	$(".block .ptm > ul > li a").each(function(){
 		// покупку грядки пропускаем
@@ -40,7 +47,7 @@ $(function(){
 	});
     if(clicktimer) return false;
 
-    if(ambarsell) {
+    if(options.ambarsell) {
         // вход в амбар (шанс зайти туда - 10%)
         if(1 == rand(1, 10)) return go('/warehouse');
         // действия в амбаре
