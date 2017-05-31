@@ -7,6 +7,27 @@ jQuery.expr[':'].notext = function(a, i, m) {
 	return jQuery(a).text().replace(/\s/g,'').toLowerCase()
 		.indexOf(m[3].replace(/\s/g,'').toLowerCase()) < 0;
 };
+jQuery.fn.cl = function( options ) {
+	var cfg = $.extend({
+		timer1 : 500,
+		timer2 : 750
+	}, options );
+	if(this.length) {
+		var ths = this[0];
+		if(clicktimer) return false;
+		var clickEvent = document.createEvent ('MouseEvents');
+		clickEvent.initEvent ('click', true, true);
+		setTimeout(function(){
+			try {
+				ths.dispatchEvent (clickEvent);
+			} catch(e) {
+				self.location.reload();
+			}
+		}, rand(cfg.timer1, cfg.timer2));
+		clicktimer = true;
+		return false;
+	} else return false;
+};
 
 var clicktimer = false;
 // разные мелкие функции
@@ -59,11 +80,16 @@ function cl(sel, timer1, timer2) {
 // основной объект с настройками
 var options = {scriptenabled: true};
 
+// функция сохраняет переменную
+function setvar(name, val) {
+	options[name] = val;
+	GM_setValue("options", options);
+}
+
 // функция для отключения кликера - прописывается в родное окно
 unsafeWindow.tglbool = function(varname) {
 	if(empty(varname)) return console.error("Необходимо указать переменную!");
-	options[varname] = !options[varname];
-	GM_setValue("options", options);
+	setvar(varname, !options[varname]);
 	self.location.reload();
 }
 
