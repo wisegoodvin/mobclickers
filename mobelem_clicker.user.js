@@ -1,19 +1,19 @@
 // ==UserScript==
-// @name         Повелители стихий. Кликер
-// @namespace    https://ok.elem.mobi/
-// @version      2.0
-// @description  Проводит дуэли и арены
-// @author       GoodVin
-// @match        *://*.elem.mobi/*
-// @match        *://elem.mobi/*
-// @require      http://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?version=31.05.2017.1
-// @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/mobelem_clicker.user.js
-// @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/mobelem_clicker.user.js
-// @icon         https://elem.mobi/img/favicon.ico
-// @grant        unsafeWindow
-// @grant        GM_setValue
-// @grant        GM_getValue
+// @name        Повелители стихий. Кликер
+// @namespace   https://ok.elem.mobi/
+// @version     2.0
+// @description Проводит дуэли и арены
+// @author      GoodVin
+// @match       *://*.elem.mobi/*
+// @match       *://elem.mobi/*
+// @require     http://code.jquery.com/jquery-3.2.1.slim.min.js
+// @require     https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?version=31.05.2017.1
+// @downloadURL https://github.com/wisegoodvin/mobclickers/raw/master/mobelem_clicker.user.js
+// @updateURL   https://github.com/wisegoodvin/mobclickers/raw/master/mobelem_clicker.user.js
+// @icon        https://elem.mobi/img/favicon.ico
+// @grant       unsafeWindow
+// @grant       GM_setValue
+// @grant       GM_getValue
 // ==/UserScript==
 unsafeWindow.$ = jQuery;
 var othertimeractivated = false;
@@ -101,7 +101,7 @@ function attack2() {
 			console.log("Хопы ещё есть");
 			// кнопка смены противника активна
 			if($("a:text(сменить):notext(карты)").length) {
-                setvar("hops", ++options.hops);
+				setvar("hops", ++options.hops);
 				console.log("Меняем противника (пока есть на кого)");
 				return $("a:text(сменить):notext(карты)").cl({timer1: 100, timer2: 250});
 			}
@@ -210,20 +210,20 @@ $(function(){
 				return $(".small[onclick]").cl();
 			}
 			// записываемся, предварительно увеличив счётчик арен
-            console.log("Записываемся в очередь на бой");
+			console.log("Записываемся в очередь на бой");
 			if(empty(options.arenas)) options.arenas = 0;
 			setvar('arenas', ++options.arenas);
 			return $("a[href*='survival/join']:text(запис)").cl();
 		}
 		// ожидание боя
 		if($(".c_fe:text(бой начнется через)").length) {
-            console.log("Стоим в очереди на начало боя");
-            reload(3000);
+			console.log("Стоим в очереди на начало боя");
+			reload(3000);
 			return false;
-        }
+		}
 		// сдох
 		if($(".end .txt:text(вы пали)").length) {
-            console.log("Сдох! Ждём конца боя");
+			console.log("Сдох! Ждём конца боя");
 			return $("a.btn:text(обновить)").cl({timer1: 5000});
 		}
 		// ошибка
