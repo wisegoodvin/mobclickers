@@ -54,7 +54,7 @@ function str2secs(str) {
 // обновление страницы
 function reload(timer1, timer2) {
 	if(clicktimer) return false;
-	if(empty(timer1)) timer1 = 3000;
+	if(empty(timer1)) timer1 = 10;
 	if(empty(timer2)) timer2 = timer1;
 	var time = rand(timer1, timer2);
 	setTimeout(function(){ self.location.reload(); }, time);
