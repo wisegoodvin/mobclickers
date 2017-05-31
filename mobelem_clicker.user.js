@@ -91,7 +91,7 @@ function attack2() {
 	if((maxdmg > 0 && was15) || (options.hops <= maxhops && was15)) {
 		console.log("Была карта с рейтингом 1.5 - кликаем по ней");
 		setvar("hops", 0);
-		return maxcard.link.cl({timer1 :100, timer2: 250});
+		return maxcard.link.cl();
 	}
 	// карты с 1.5 не найдены - меняем противника
 	else {
@@ -103,7 +103,7 @@ function attack2() {
 			if($("a:text(сменить):notext(карты)").length) {
 				setvar("hops", ++options.hops);
 				console.log("Меняем противника (пока есть на кого)");
-				return $("a:text(сменить):notext(карты)").cl({timer1: 100, timer2: 250});
+				return $("a:text(сменить):notext(карты)").cl();
 			}
 			// противники кончились
 			else {
