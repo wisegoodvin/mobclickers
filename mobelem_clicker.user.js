@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name        Повелители стихий. Кликер
 // @namespace   https://ok.elem.mobi/
-// @version     2.0
+// @version     2.1
 // @description Проводит дуэли и арены
 // @author      GoodVin
 // @match       *://*.elem.mobi/*
 // @match       *://elem.mobi/*
 // @require     http://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require     https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?version=31.05.2017.1
+// @require     https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?version=01.06.2017.1
 // @downloadURL https://github.com/wisegoodvin/mobclickers/raw/master/mobelem_clicker.user.js
 // @updateURL   https://github.com/wisegoodvin/mobclickers/raw/master/mobelem_clicker.user.js
 // @icon        https://elem.mobi/img/favicon.ico
@@ -42,6 +42,7 @@ this.getdmg = function(idx) {
 
 // проведение дуэли
 function attack() {
+	console.log("Идёт дуэль");
 	// определяем переменные
 	var card = null;
 	var maxcard = null;
@@ -58,6 +59,7 @@ function attack() {
 
 // проведение арены
 function attack2() {
+	console.log('Идёт бой');
 	// определяем переменные
 	var cards = [];
 	var maxcard = null;
@@ -83,15 +85,13 @@ function attack2() {
 	// все карты на столе потрачены - ждём
 	if(maxcard === null) {
 		setvar("hops", 0);
-		console.log("Нет карт - обновляемся через 2 секунды");
-		return $("a.btn:text(обновить)").cl({timer1: 2000});
+		return $("a.btn:text(обновить)").cl({log: "Нет карт - обновляемся через 2 секунды", timer1: 2000});
 	}
 
 	// найдена карта с рейтингом 1.5
 	if((maxdmg > 0 && was15) || (options.hops <= maxhops && was15)) {
-		console.log("Была карта с рейтингом 1.5 - кликаем по ней");
 		setvar("hops", 0);
-		return maxcard.link.cl();
+		return maxcard.link.cl({log: "Была карта с рейтингом 1.5 - кликаем по ней", timer1 :100, timer2: 250});
 	}
 	// карты с 1.5 не найдены - меняем противника
 	else {
@@ -102,20 +102,17 @@ function attack2() {
 			// кнопка смены противника активна
 			if($("a:text(сменить):notext(карты)").length) {
 				setvar("hops", ++options.hops);
-				console.log("Меняем противника (пока есть на кого)");
-				return $("a:text(сменить):notext(карты)").cl();
+				return $("a:text(сменить):notext(карты)").cl({log: "Меняем противника (пока есть на кого)", timer1: 100, timer2: 250});
 			}
 			// противники кончились
 			else {
-				console.log("Нельзя менять противника - кнопка не активна. Кликаем по карте с максимальным дамагом");
 				setvar("hops", 0);
-				return maxcard.link.cl();
+				return maxcard.link.log("Нельзя менять противника - кнопка не активна. Кликаем по карте с максимальным дамагом").cl();
 			}
 		// всё, кликаем на той где есть
 		} else {
-			console.log("Хопы кончились (перебрали всех противников) - кликаем прям тут");
 			setvar("hops", 0);
-			return maxcard.link.cl();
+			return maxcard.link.log("Хопы кончились (перебрали всех противников) - кликаем прям тут").cl();
 		}
 	}
 }
@@ -133,20 +130,11 @@ $(function(){
 		if($(".w3card").length) return attack();
 
 		// бой окончен - предложение вступить в дуэль ещё раз
-		if($(".cntr a:not(.orange):text(еще дуэль)").length) {
-			console.log("Выбираем ещё дуэль");
-			return $(".cntr a:not(.orange):text(еще дуэль)").cl();
-		}
+		if($(".cntr a:not(.orange):text(еще дуэль)").length) return $(".cntr a:not(.orange):text(еще дуэль)").log("Выбираем ещё дуэль").cl();
 		// перерыв в дуэлях
-		if($(".fttl:text(перерыв в дуэлях)").length) {
-			console.log("Дуэли закончились - возвращаемся на главную страницу");
-			return $(".small[onclick]").cl();
-		}
+		if($(".fttl:text(перерыв в дуэлях)").length) return $(".small[onclick]").log("Дуэли закончились - возвращаемся на главную страницу").cl();
 		// Новая дуэль
-		if($(".cntr .be .lbl:text(Новая дуэль)").length) {
-			console.log("Новая дуэль");
-			return $(".cntr .btn").cl();
-		}
+		if($(".cntr .be .lbl:text(Новая дуэль)").length) return $(".cntr .btn").log("Новая дуэль").cl();
 		// напасть
 		if($(".cntr a:not(.grey):text(напасть)").length) {
 			// ищем более слабого противника
@@ -158,21 +146,20 @@ $(function(){
 					return reload(500);
 				}
 			}
-			console.log("Нападаем на слабого противника");
-			return $(".cntr a:not(.grey):text(напасть)").cl();
+			return $(".cntr a:not(.grey):text(напасть)").log("Нападаем на слабого противника").cl();
 		}
 		// смена противника - перезагрузка страницы
-		else {
-			console.log("Противник слишком сильный - ищем другого. Или просто обновляем страницу");
-			return $(".cntr a:text(искать еще)").cl();
-		}
+		else return $(".cntr a:text(искать еще)").log("Противник слишком сильный - ищем другого. Или просто обновляем страницу").cl();
 	}
 
 	// действия в корне
 	if("/" == self.location.pathname) {
+		console.log("Действия на главной странице");
 		// дуэли активны
-		if($(".bttn.duels:text(дуэли:)").length) return $(".bttn.duels").cl();
-		else if(!options.noarena) return $("a[href*='surv']:text(арена)").cl();
+		if($(".bttn.duels:text(дуэли:)").length) return $(".bttn.duels").log("Дуэли активы").cl();
+		// арена активна
+		else if(!options.noarena && $("a[href*='surv']:text(арена)").length) return $("a[href*='surv']:text(арена)").log("Заходим на арену").cl();
+		// таймер на дуэли/прочие действия
 		else {
 			// таймер на дуэли
 			if($("#duels_restore_time").length) {
@@ -188,32 +175,29 @@ $(function(){
 				othertimeractivated = true;
 				setTimeout(function(){ return $("#duels_restore_time").closest("a").cl(); }, secs * 1000);
 			} else {
+				console.log("Прочие действия");
 				// прочие действия на главном экране
-				if($(".fttl:eq(0):text(ежедневная)").length) return $("a[href*='dailyreward']").cl();
+				if($(".fttl:eq(0):text(ежедневная)").length) return $("a[href*='dailyreward']").log("Получаем ежедневную награду").cl();
 			}
 		}
 	}
 
 	// действия на арене
 	if(/^\/survival\//.test(self.location.pathname) && !options.noarena) {
+		console.log("Действия на арене");
 		// идёт бой
-		if($(".w3card").length) {
-			console.log('Идёт бой');
-			return attack2();
-		}
+		if($(".w3card").length) return attack2();
 		// запись
 		if($("a[href*='survival/join']:text(запис)").length) {
 			// перекидываемся на главный экран
 			if(options.arenas >= 20) {
-				console.log('Прошло 20 боёв - надо проверить не активировались ли дуэли');
 				setvar('arenas',0);
-				return $(".small[onclick]").cl();
+				return $(".small[onclick]").log('Прошло 20 боёв - надо проверить не активировались ли дуэли').cl();
 			}
 			// записываемся, предварительно увеличив счётчик арен
-			console.log("Записываемся в очередь на бой");
 			if(empty(options.arenas)) options.arenas = 0;
 			setvar('arenas', ++options.arenas);
-			return $("a[href*='survival/join']:text(запис)").cl();
+			return $("a[href*='survival/join']:text(запис)").log("Записываемся в очередь на бой").cl();
 		}
 		// ожидание боя
 		if($(".c_fe:text(бой начнется через)").length) {
@@ -222,15 +206,9 @@ $(function(){
 			return false;
 		}
 		// сдох
-		if($(".end .txt:text(вы пали)").length) {
-			console.log("Сдох! Ждём конца боя");
-			return $("a.btn:text(обновить)").cl({timer1: 5000});
-		}
+		if($(".end .txt:text(вы пали)").length) return $("a.btn:text(обновить)").cl({log: "Сдох! Ждём конца боя", timer1: 5000});
 		// ошибка
-		if($(".msg.red:text(бой не существует)").length) {
-			console.log('Какая-то ошибка - возвращаемся на арену');
-			return $("a[href*='surv']:text(арен)").cl();
-		}
+		if($(".msg.red:text(бой не существует)").length) return $("a[href*='surv']:text(арен)").log('Какая-то ошибка - возвращаемся на арену').cl();
 	}
 
 	// прочие действия
