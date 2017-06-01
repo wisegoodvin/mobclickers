@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      1.3
+// @version      1.4
 // @description  Высаживает, поливает, удобряет и продаёт растения
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
 // @match        *://kolhoz.mobi/*
 // @require      https://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?v=3
+// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?v=01.06.2017.1
 // @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/kolhmobi_clicker.user.js
 // @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/kolhmobi_clicker.user.js
 // @grant        unsafeWindow
@@ -30,20 +30,23 @@ $(function(){
 		else return false;
 	}
 
+	if($("a:text(полить всё)").length) $("a:text(полить всё)").log("Поливаем все растения").cl();
+	if($("a:text(удобрить всё)").length) $("a:text(удобрить всё)").log("Удобряем все растения").cl();
+
 	// действия на главном экране
 	$(".block .ptm > ul > li a").each(function(){
 		// покупку грядки пропускаем
 		if(hastxt(this, "купить")) return false;
 		// сбор урожая
-		if(hastxt(this, "собрать")) return cl(this);
+		if(hastxt(this, "собрать")) return cl(this, 250, 300);
 		// вскапывание
-		if(hastxt(this, "вскопать")) return cl(this);
+		if(hastxt(this, "вскопать")) return cl(this, 250, 300);
 		// посадка растения (надо выбрать заранее)
-		if(hastxt(this, "посадить")) return cl(this);
+		if(hastxt(this, "посадить")) return cl(this, 250, 300);
 		// поливка
-		if(hastxt(this, "полить")) return cl(this);
+		if(hastxt(this, "полить")) return cl(this, 250, 300);
 		// удобрение (надо выбрать заранее)
-		if(hastxt(this, "применить")) return cl(this);
+		if(hastxt(this, "применить")) return cl(this, 250, 300);
 	});
     if(clicktimer) return false;
 
@@ -71,7 +74,7 @@ $(function(){
             var t = str2secs(res[0]);
             if(empty(mintime) || t < mintime) mintime = t;
         }
-        mintime += 3;
+        mintime += 5;
         console.log('Никаких действие не сделано - запущен таймер на '+mintime+' сек. до ближайшего действия.');
         return go("/", mintime * 1000);
     }
