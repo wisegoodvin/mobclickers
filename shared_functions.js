@@ -9,6 +9,7 @@ jQuery.expr[':'].notext = function(a, i, m) {
 };
 jQuery.fn.cl = function( options ) {
 	var cfg = $.extend({
+		log: null,
 		timer1 : 500,
 		timer2 : 750
 	}, options );
@@ -17,6 +18,7 @@ jQuery.fn.cl = function( options ) {
 		if(clicktimer) return false;
 		var clickEvent = document.createEvent ('MouseEvents');
 		clickEvent.initEvent ('click', true, true);
+		if(null !== cfg.log) console.log(cfg.log);
 		setTimeout(function(){
 			try {
 				ths.dispatchEvent (clickEvent);
@@ -27,6 +29,10 @@ jQuery.fn.cl = function( options ) {
 		clicktimer = true;
 		return false;
 	} else return false;
+};
+jQuery.fn.log = function( text ) {
+	console.log(text);
+	return this;
 };
 
 var clicktimer = false;
