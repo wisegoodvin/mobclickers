@@ -19,14 +19,16 @@ jQuery.fn.cl = function( options ) {
 		var clickEvent = document.createEvent ('MouseEvents');
 		clickEvent.initEvent ('click', true, true);
 		if(null !== cfg.log) console.log(cfg.log);
-		setTimeout(function(){
+		if(navigator.onLine) {
+			setTimeout(function(){
 			try {
 				ths.dispatchEvent (clickEvent);
 			} catch(e) {
 				self.location.reload();
 			}
-		}, rand(cfg.timer1, cfg.timer2));
-		clicktimer = true;
+			}, rand(cfg.timer1, cfg.timer2));
+			clicktimer = true;
+		} else console.error("Offline!");
 		return false;
 	} else return false;
 };
