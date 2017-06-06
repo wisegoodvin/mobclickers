@@ -65,7 +65,9 @@ function reload(timer1, timer2) {
 	if(empty(timer1)) timer1 = 10;
 	if(empty(timer2)) timer2 = timer1;
 	var time = rand(timer1, timer2);
-	setTimeout(function(){ self.location.reload(); }, time);
+	if(navigator.onLine) {
+		setTimeout(function(){ self.location.reload(); }, time);
+	} else console.error("Offline2!");
 	return false;
 }
 
@@ -75,7 +77,9 @@ function go(url, timer1, timer2) {
 	if(empty(timer1)) timer1 = 500;
 	if(empty(timer2)) timer2 = timer1;
 	var time = rand(timer1, timer2);
-	setTimeout(function(){ self.location.href = url; }, time);
+	if(navigator.onLine) {
+		setTimeout(function(){ self.location.href = url; }, time);
+	} else console.error("Offline3!");
 	return false;
 }
 
@@ -86,14 +90,16 @@ function cl(sel, timer1, timer2) {
 	clickEvent.initEvent ('click', true, true);
 	if(timer1 === undefined) timer1 = 500;
 	if(timer2 === undefined) timer2 = 750;
-	setTimeout(function(){
-		try {
-			(sel instanceof jQuery ? sel[0] : sel).dispatchEvent (clickEvent);
-		} catch(e) {
-			self.location.reload();
-		}
-	}, rand(timer1, timer2));
-	clicktimer = true;
+	if(navigator.onLine) {
+		setTimeout(function(){
+			try {
+				(sel instanceof jQuery ? sel[0] : sel).dispatchEvent (clickEvent);
+			} catch(e) {
+				self.location.reload();
+			}
+		}, rand(timer1, timer2));
+		clicktimer = true;
+	} else console.error("Offline4!");
 	return false;
 }
 
