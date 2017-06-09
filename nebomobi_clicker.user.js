@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Небоскребы: онлайн. Кликер
 // @namespace    https://odkl.vnebo.mobi/
-// @version      2.2
+// @version      2.2.1
 // @description  Поднимает посетителей на лифте, делает операции с этажами
 // @author       GoodVin
 // @match        *://*.vnebo.mobi/*
