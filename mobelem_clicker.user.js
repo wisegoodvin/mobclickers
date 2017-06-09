@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Повелители стихий. Кликер
 // @namespace   https://ok.elem.mobi/
-// @version     2.1
+// @version     2.1.1
 // @description Проводит дуэли и арены
 // @author      GoodVin
 // @match       *://*.elem.mobi/*
@@ -107,12 +107,12 @@ function attack2() {
 			// противники кончились
 			else {
 				setvar("hops", 0);
-				return maxcard.link.log("Нельзя менять противника - кнопка не активна. Кликаем по карте с максимальным дамагом").cl();
+				return maxcard.link.log("Нельзя менять противника - кнопка не активна. Кликаем по карте с максимальным дамагом").cl({timer1: 100, timer2: 250});
 			}
 		// всё, кликаем на той где есть
 		} else {
 			setvar("hops", 0);
-			return maxcard.link.log("Хопы кончились (перебрали всех противников) - кликаем прям тут").cl();
+			return maxcard.link.log("Хопы кончились (перебрали всех противников) - кликаем прям тут").cl({timer1: 100, timer2: 250});
 		}
 	}
 }
@@ -190,7 +190,7 @@ $(function(){
 		// запись
 		if($("a[href*='survival/join']:text(запис)").length) {
 			// перекидываемся на главный экран
-			if(options.arenas >= 20) {
+			if(options.arenas >= 5) {
 				setvar('arenas',0);
 				return $(".small[onclick]").log('Прошло 20 боёв - надо проверить не активировались ли дуэли').cl();
 			}
