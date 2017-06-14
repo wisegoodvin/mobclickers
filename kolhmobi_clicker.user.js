@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      1.5
+// @version      1.6
 // @description  Высаживает, поливает, удобряет и продаёт растения
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
@@ -27,11 +27,12 @@ $(function(){
 	// кончилось бабло
 	if($("a:text(продать товар из амбара)").length) {
 		console.log("Не хватает денег на покупку семян/удобрений!");
-		if(options.ambarsell) return cl($("a:text(продать товар из амбара)"));
-		else return false;
+		if(options.ambarsell) return $("a:text(продать товар из амбара)").cl();
+		else return go('/', 600000);
 	}
 
-	if($("a:text(всё)").length) $("a:text(всё)").log("Действия по ссылке ВСЁ").cl();
+    if($("a:text(вскопать)").length) return $("a:text(вскопать)").log("КОПАЙ!").cl();
+	if($("a:text(всё)").length) return $("a:text(всё)").log("Действия по ссылке ВСЁ").cl();
 
 	// действия на главном экране
 	$(".block .ptm > ul > li a").each(function(){
@@ -56,8 +57,8 @@ $(function(){
         // действия в амбаре
         if('/warehouse' == self.location.pathname) {
             console.log('Продажа из амбара');
-            $(".block a").each(function(){ if(hastxt(this, "продать")) return cl(this); });
-            if(hastxt(".block", "амбар пуст")) return go('/');
+            if($(".block a:text(продать)").length) return $(".block a:text(продать)").cl(this);
+            if($(".block:text(амбар пуст)").length) return go('/');
         }
         if(clicktimer) return false;
     }
