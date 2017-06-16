@@ -1,19 +1,20 @@
 // ==UserScript==
-// @name         Небоскребы: онлайн. Кликер
-// @namespace    https://odkl.vnebo.mobi/
-// @version      2.2.1
-// @description  Поднимает посетителей на лифте, делает операции с этажами
-// @author       GoodVin
-// @match        *://*.vnebo.mobi/*
-// @match        *://vnebo.mobi/*
-// @require      https://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js
-// @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/nebomobi_clicker.user.js
-// @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/nebomobi_clicker.user.js
-// @icon         https://vnebo.mobi/favicon.ico
-// @grant        unsafeWindow
-// @grant        GM_setValue
-// @grant        GM_getValue
+// @name		Небоскребы: онлайн. Кликер
+// @namespace	https://odkl.vnebo.mobi/
+// @version		2.3
+// @description	Поднимает посетителей на лифте, делает операции с этажами
+// @todo		asd
+// @author		GoodVin
+// @match		*://*.vnebo.mobi/*
+// @match		*://vnebo.mobi/*
+// @require		https://code.jquery.com/jquery-3.2.1.slim.min.js
+// @require		https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js
+// @downloadURL	https://github.com/wisegoodvin/mobclickers/raw/master/nebomobi_clicker.user.js
+// @updateURL	https://github.com/wisegoodvin/mobclickers/raw/master/nebomobi_clicker.user.js
+// @icon		https://vnebo.mobi/favicon.ico
+// @grant		unsafeWindow
+// @grant		GM_setValue
+// @grant		GM_getValue
 // ==/UserScript==
 
 $(function(){
@@ -23,61 +24,49 @@ $(function(){
 
 	// развернуть этажи
 	var explvl = $(".tdn:text(показать этажи)");
-	if(explvl.length) return cl(explvl);
+	if(explvl.length) return explvl.log("Разворачиваю этажи").cl();
 
 	// действия с этажами из холла
 	if(("/" == self.location.pathname && !/:floorPanel:/.test(self.location.href)) || "/home" == self.location.pathname || /login\/?$/i.test(self.location.pathname)) {
 		console.log("Действия на главном экране");
 		// есть выполненные задания
 		var quests = $("a[href*='quest']").has("img[src*='quests']");
-		if(quests.length) cl(quests);
+		if(quests.length) quests.log("О! Квестики!").cl();
 		// есть какие-то действия с этажами
 		var flrs = $(".tlbr a[href*='floor']:text(\()");
-		if(flrs.length) return cl(flrs);
+		if(flrs.length) return flrs.log("Есть действия с этажами (иконка рядом с лифтом под заголовком)").cl();
 		// есть пассажиры
 		var elev = $(".tlbr a[href*='lift']:text(\()");
-		if(elev.length) return cl(elev);
+		if(elev.length) return elev.log("Есть пассажиры").cl();
 	}
 
 	// действия с квестами
 	if(/\/quests/i.test(self.location.pathname)) {
 		console.log("Есть награда за квесты?");
 		var q = $("a.btng:text(Получить награду)");
-		if(q.length) return cl(q[0]);
-		else return cl($(".hdr"));
+		if(q.length) return q.log("Забираю награду за квесты").cl();
+		else return $(".hdr").log("Наград нет - возвращаюсь в холл").cl();
 	}
 
 	// действия с этажами
-	if((/\/floors\//i.test(self.location.pathname) || /:floorPanel:/.test(self.location.href)) && $(".tower a.tdu:notext(биржа)").length) {
-		console.log("Действия с этажами");
-		return cl($(".tower a.tdu:notext(биржа)")[0]);
-	}
+    var levels = $(".tower a.tdu:ortext(собрать|закупить|выложить)");
+	if((/\/floors\//i.test(self.location.pathname) || /:floorPanel:/.test(self.location.href)) && levels.length) return levels.log("Действия с этажами (новые)").cl();
 
-	// действия с этажом
-	if(/\/floor\//i.test(self.location.pathname)) {
-        	console.log("Действия на этажаме");
-		// закупки
-		if($(".prd a.tdu:text(купить)").length) {
-			console.log("Закупка товара");
-			return cl($(".prd a.tdu:text(купить):last"));
-		}
-	}
+	// закупка товара
+	if(/\/floor\//i.test(self.location.pathname) && $(".prd a.tdu:text(купить)").length) return $(".prd a.tdu:text(купить):last").log("Закупка товара").cl();
 
-	// у лифта есть ожидающие
+	// действия в лифте (холле)
 	if(/^\/lift/i.test(self.location.pathname)) {
-        	console.log("Действия внутри лифта");
+        console.log("Действия внутри лифта");
 		// в лифте
 		if($(".lift").length) {
-			if($(".lift a.tdu:text(поднять)").length) {
-                console.log("Пиднимаю");
-                return cl($(".lift a.tdu:text(поднять)"));
-            }
-            if($(".lift a.tdu:text(чаевые)").length) {
-                console.log("Чаевые");
-                return cl($(".lift a.tdu:text(чаевые)"));
-            }
+			if($(".lift a.tdu:text(поднять)").length) return $(".lift a.tdu:text(поднять)").log("Поднимаю").cl();
+            if($(".lift a.tdu:text(чаевые)").length) return $(".lift a.tdu:text(чаевые)").log("Чаевые").cl();
 		}
 	}
+
+	// поднимаем людей
+	if($("a.tdu:text(поднять на лифте)")) $("a.tdu:text(поднять на лифте)").log("Есть пассажиры - ВСЕ В ЛИФТ!").cl();
 
 	// таймер на обновления
 	var timer = null;
