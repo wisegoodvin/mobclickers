@@ -7,6 +7,20 @@ jQuery.expr[':'].notext = function(a, i, m) {
 	return jQuery(a).text().replace(/\s/g,'').toLowerCase()
 		.indexOf(m[3].replace(/\s/g,'').toLowerCase()) < 0;
 };
+jQuery.expr[':'].ortext = function(a, i, m) {
+	var texts = m[3].split('|');
+	for(var i = 0; i < texts.length; i++)
+		if(jQuery(a).text().replace(/\s/g,'').toLowerCase().indexOf(texts[i].replace(/\s/g,'').toLowerCase()) >= 0)
+			return jQuery(a);
+};
+jQuery.expr[':'].ornottext = function(a, i, m) {
+	var texts = m[3].split('|');
+	var ret = true;
+	for(var i = 0; i < texts.length; i++)
+		if(jQuery(a).text().replace(/\s/g,'').toLowerCase().indexOf(texts[i].replace(/\s/g,'').toLowerCase()) >= 0)
+			ret = false;
+	if(ret) return jQuery(a);
+};
 jQuery.fn.cl = function( options ) {
 	var cfg = $.extend({
 		log: null,
