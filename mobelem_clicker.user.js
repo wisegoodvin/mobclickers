@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Повелители стихий. Кликер
 // @namespace   https://ok.elem.mobi/
-// @version     3.0
+// @version     3.0.1
 // @description Проводит дуэли, арены, кампании, мочет урфина и собирает награды за задания
 // @author      GoodVin
 // @match       *://*.elem.mobi/*
@@ -222,7 +222,7 @@ $(function(){
 				}
 			}
 			// дефолтовый таймер
-			if(mintime === 0 || mintime > 450) mintime = 450;
+			if(mintime === 0 || mintime > 300) mintime = 300;
 			// запускаем таймер
 			mintime += 5;
 			console.log("Устанавливаем таймер на "+mintime+" секунд");
