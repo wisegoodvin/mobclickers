@@ -133,5 +133,12 @@ unsafeWindow.tglbool = function(varname) {
 	self.location.reload();
 }
 
+// удаление элемента из массива
+Array.prototype.remove = function(from, to) {
+	var rest = this.slice((to || from) + 1 || this.length);
+	this.length = from < 0 ? this.length + from : from;
+	return this.push.apply(this, rest);
+}
+
 // инициализация массива с настройками
 $(function(){ options = GM_getValue("options", options); });
