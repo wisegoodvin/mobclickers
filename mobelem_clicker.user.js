@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name        Повелители стихий. Кликер
 // @namespace   https://ok.elem.mobi/
-// @version     2.1.1
-// @description Проводит дуэли и арены
+// @version     3.0
+// @description Проводит дуэли, арены, кампании, мочет урфина и собирает награды за задания
 // @author      GoodVin
 // @match       *://*.elem.mobi/*
 // @match       *://elem.mobi/*
 // @require     http://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require     https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?version=01.06.2017.1
+// @require     https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?version=03.07.2017.1
 // @downloadURL https://github.com/wisegoodvin/mobclickers/raw/master/mobelem_clicker.user.js
 // @updateURL   https://github.com/wisegoodvin/mobclickers/raw/master/mobelem_clicker.user.js
 // @icon        https://elem.mobi/img/favicon.ico
@@ -17,6 +17,7 @@
 // ==/UserScript==
 unsafeWindow.$ = jQuery;
 var othertimeractivated = false;
+var today = "" + (new Date()).getFullYear() + "-" + (new Date()).getMonth() + "-" + (new Date()).getDate();
 
 // функция вычисления дамага у пары карт
 this.getdmg = function(idx) {
@@ -30,9 +31,18 @@ this.getdmg = function(idx) {
 	var res = {mdmg: 0, multi: 0, hdmg: 0, mcard: 0, hcard: 0, pair: pair, link: pair.find("a:has(.sw):eq(1)"), dmg: 0};
 	var nums = pair.text().replace("x","").replace(/\s{2,}/g,' ').trim().split(" ");
 	// распределяем дамаги и множитель
-	res.mcard = parseInt(nums[2], 10);
-	res.hcard = parseInt(nums[0], 10);
-	res.multi = parseFloat(nums[1]);
+	if(empty(nums[2])) {
+		// кампания - дамаг врага не известен
+		res.mcard = parseInt(nums[1], 10);
+		res.hcard = 0;
+		res.multi = 1;
+		res.link = pair.find("a.card");
+	} else {
+		// арена/дуэль/урфин и тд
+		res.mcard = parseInt(nums[2], 10);
+		res.hcard = parseInt(nums[0], 10);
+		res.multi = parseFloat(nums[1]);
+	}
 	res.mdmg = Math.round(res.mcard * res.multi);
 	res.hdmg = Math.round(res.hcard * (2 - res.multi));
 	res.dmg = res.mdmg - res.hdmg;
@@ -40,9 +50,9 @@ this.getdmg = function(idx) {
 	return res;
 };
 
-// проведение дуэли
+// дуэли и кампании
 function attack() {
-	console.log("Идёт дуэль");
+	console.log("Идёт бой");
 	// определяем переменные
 	var card = null;
 	var maxcard = null;
@@ -117,15 +127,130 @@ function attack2() {
 	}
 }
 
+// урфин
+function attack3() {
+	console.log("Мочим урфиньего козла");
+	// определяем переменные
+	var card = null;
+	var maxcard = null;
+	var timer = false;
+
+	// цикл по картам
+	for(i = 0; i < 3; i++) {
+		card = getdmg(i);
+		if(!card) timer = true;
+		if(empty(maxcard) || maxcard.dmg < card.dmg) maxcard = card;
+	}
+
+	// был таймер
+	if(timer && maxcard.multi != 1.5) return $("a.btn.blue:text(обновить)").cl({timer1: 3000, log: 'Есть карты с таймером и нет с множителем 1.5 - ждём 3 секунды и обновляемся'});
+
+	// кликаем по максимальной карте
+	return maxcard.link.cl();
+}
+
 // основные действия
 $(function(){
 	// сначала добавляем кнопки
 	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(options.scriptenabled ? 'lime' : 'red')+';" onclick="tglbool(\'scriptenabled\');return false;" title="Включить / выключить кликер">[ в'+(options.scriptenabled ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	if(!options.scriptenabled) return false;
 	$('<a href="#" style="position:absolute;z-index:10000;top:30px;right:20px;font-size:10pt;color:'+(!options.noarena ? 'lime' : 'red')+';" onclick="tglbool(\'noarena\');return false;" title="Включить / выключить автоарену">[ арена: в'+(!options.noarena ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	if(!options.noarena) $('<a href="#" style="position:absolute;z-index:10000;top:50px;right:20px;font-size:10pt;color:'+(options.arenatype ? 'lime' : 'red')+';" onclick="tglbool(\'arenatype\');return false;" title="Смена типа боёв на арене">[ тип арены: '+(options.arenatype ? 'квестовая' : 'постоянная')+' ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:70px;right:20px;font-size:10pt;color:'+(!options.nourfin ? 'lime' : 'red')+';" onclick="tglbool(\'nourfin\');return false;" title="Включить / выключить урфина">[ урфин: в'+(!options.nourfin ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:90px;right:20px;font-size:10pt;color:'+(!options.nocompany ? 'lime' : 'red')+';" onclick="tglbool(\'nocompany\');return false;" title="Включить / выключить прохождение компаний">[ компании: в'+(!options.nocompany ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:110px;right:20px;font-size:10pt;color:'+(!options.noquests ? 'lime' : 'red')+';" onclick="tglbool(\'noquests\');return false;" title="Включить / выключить сбор наград за квесты">[ сбор квестов: в'+(!options.noquests ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:130px;right:20px;font-size:10pt;color:'+(!options.noduels ? 'lime' : 'red')+';" onclick="tglbool(\'noduels\');return false;" title="Включить / выключить дуэли">[ дуэли: в'+(!options.noduels ? '' : 'ы')+'кл ]</a>').appendTo("body");
+
+	// вылезла ежедневная награда
+	if($("a[href*='dailyreward']").length) return $("a[href*='dailyreward']").log("Получаем ежедневную награду").cl();
+	// инициализируем флаг арены
+	if(empty(options.arenadone)) setvar("arenadone", {});
+	if(!options.noarena && !options.arenatype) {
+		options.arenadone[today] = false;
+		setvar('arenadone', options.arenadone);
+	}
+	// новый день - сбрасываем переменные
+	if(empty(options.lastactive) || options.lastactive != today) {
+		setvar('arenas', 0);
+		setvar('arenawins', 0);
+		setvar('hops', 0);
+		setvar('lastactive', today);
+		options.arenadone[today] = false;
+		setvar('arenadone', options.arenadone);
+	}
+
+	// действия в корне
+	if("/" == self.location.pathname) {
+		console.log("Действия на главной странице");
+		// есть не взятые квесты
+		if(!options.noquests && $(".bbtn a[href='/daily/'] img").length) $(".bbtn a[href='/daily/']").log("Есть не взятые квесты").cl();
+		// урфин активен
+		else if(!options.nourfin && $(".bttn.urfin:text(босс)").length) return $(".bttn.urfin").log("Урфин активен").cl();
+		// кампания активна
+		else if(!options.nocompany && $(".bttn.campaign:text(кампания:)").length) return $(".bttn.campaign").log("Кампания активна").cl();
+		// дуэли активны
+		else if(!options.noduels && $(".bttn.duels:text(дуэли:)").length) return $(".bttn.duels").log("Дуэли активы").cl();
+		// арена активна
+		else if(!options.noarena && !options.arenadone[today] && $("a[href*='surv']:text(арена)").length) return $("a[href*='surv']:text(арена)").log("Заходим на арену").cl();
+		// таймеры
+		else {
+			// устанавливаем таймер на любое доступное действие
+			var mintime = 0; // дефолтовый таймер на 7.5 минут (на всякий случай) - при инициализации 0
+			var tm = 0;
+			// дуэли
+			if(!options.noduels && $("#duels_restore_time").length) {
+				tm = str2secs($("#duels_restore_time").text());
+				if(tm > 0 && (mintime === 0 || tm < mintime)) {
+					mintime = tm;
+					othertimeractivated = true;
+				}
+			}
+			// урфин
+			if(!options.nourfin && $("a.bttn.urfin:text(готовьтесь)").length) {
+				tm = str2secs($("a.bttn.urfin").text());
+				if(tm > 0 && (mintime === 0 || tm < mintime)) {
+					mintime = tm;
+					othertimeractivated = true;
+				}
+			}
+			// кампания
+			if(!options.nocompany && $("#dungeon_cooldown").length) {
+				tm = str2secs($("#dungeon_cooldown").text());
+				if(tm > 0 && (mintime === 0 || tm < mintime)) {
+					mintime = tm;
+					othertimeractivated = true;
+				}
+			}
+			// дефолтовый таймер
+			if(mintime === 0 || mintime > 450) mintime = 450;
+			// запускаем таймер
+			mintime += 5;
+			console.log("Устанавливаем таймер на "+mintime+" секунд");
+			return reload(mintime * 1000);
+		}
+	}
+
+	// действия с квестами
+	if(!options.noquests && /^\/daily\//.test(self.location.pathname)) {
+		console.log("Ежедневные задания");
+		if($("a.btn.orange:text(забрать)").length) return $("a.btn.orange:text(забрать)").log("Забираем награду").cl();
+		else return go('/', 3000);
+	}
+
+	// действия в кампании
+	if(!options.nocompany && /^\/dungeon\//.test(self.location.pathname)) {
+		// экран с выбором кого бить
+		if($("div.cpath a:text(бить)").length) return $("div.cpath a:text(бить):last").log("Валим босса").cl();
+		// экран с картами
+		if($(".w3card").length) return attack();
+		// завалили босса
+		else if($(".c_win:text(победа)").length && $("a.btn.green:text(кампания)").length) return $("a.btn.green:text(кампания)").cl();
+		// нет действий в кампании - на главный экран
+		else return go('/', 3000);
+	}
 
 	// действия для дуэлей
-	if(/^\/duel\//.test(self.location.pathname)) {
+	if(!options.noduels && /^\/duel\//.test(self.location.pathname)) {
 		// идёт бой
 		if($(".w3card").length) return attack();
 
@@ -141,7 +266,7 @@ $(function(){
 			if($(".cntr.small").has("a[href*='tobattle']").length) {
 				var hp1 = parseInt($("div.small[onclick] .c_da").text().trim().replace(/\s/g,''), 10);
 				var hp2 = parseInt($(".cntr.small").has("a[href*='tobattle']").find(".c_da").text().trim().replace(/\s/g, ''), 10);
-				if(hp1 > 0 && hp2 > 0 && hp1 - hp2 < 5000) {
+				if(hp1 > 0 && hp2 > 0 && hp1 - hp2 < 8000) {
 					console.log('Ищем слабого противника');
 					return reload(500);
 				}
@@ -152,63 +277,60 @@ $(function(){
 		else return $(".cntr a:text(искать еще)").log("Противник слишком сильный - ищем другого. Или просто обновляем страницу").cl();
 	}
 
-	// действия в корне
-	if("/" == self.location.pathname) {
-		console.log("Действия на главной странице");
-		// дуэли активны
-		if($(".bttn.duels:text(дуэли:)").length) return $(".bttn.duels").log("Дуэли активы").cl();
-		// арена активна
-		else if(!options.noarena && $("a[href*='surv']:text(арена)").length) return $("a[href*='surv']:text(арена)").log("Заходим на арену").cl();
-		// таймер на дуэли/прочие действия
-		else {
-			// таймер на дуэли
-			if($("#duels_restore_time").length) {
-				var ar = $("#duels_restore_time").text().split(" ");
-				var secs = 5;
-				for(i = 0; i < ar.length; i += 2) {
-					if(ar[i+1] == 'ч') secs += parseInt(ar[i], 10) * 3600;
-					if(ar[i+1] == 'м') secs += parseInt(ar[i], 10) * 60;
-					if(ar[i+1] == 'с') secs += parseInt(ar[i], 10);
-					if(ar[i+1] == 'c') secs += parseInt(ar[i], 10);
-				}
-				console.log('Установлен таймер на '+secs+' секунд до начала дуэлей!');
-				othertimeractivated = true;
-				setTimeout(function(){ return $("#duels_restore_time").closest("a").cl(); }, secs * 1000);
-			} else {
-				console.log("Прочие действия");
-				// прочие действия на главном экране
-				if($(".fttl:eq(0):text(ежедневная)").length) return $("a[href*='dailyreward']").log("Получаем ежедневную награду").cl();
-			}
-		}
-	}
-
 	// действия на арене
-	if(/^\/survival\//.test(self.location.pathname) && !options.noarena) {
+	if(!options.noarena && !options.arenadone[today] && /^\/survival\//.test(self.location.pathname)) {
 		console.log("Действия на арене");
 		// идёт бой
 		if($(".w3card").length) return attack2();
 		// запись
-		if($("a[href*='survival/join']:text(запис)").length) {
+		if($("a[href*='survival/join']").length && !options.arenadone[today]) {
+			// увеличиваем нужные счётчики
+			if(options.arenatype) {
+				if(empty(options.arenawins)) setvar('arenawins', 0);
+				if($(".c_win:text(победи)").length) setvar('arenawins', options.arenawins + 1);
+			}
 			// перекидываемся на главный экран
-			if(options.arenas >= 5) {
-				setvar('arenas',0);
-				return $(".small[onclick]").log('Прошло 20 боёв - надо проверить не активировались ли дуэли').cl();
+			if(!options.arenatype && options.arenas >= 5) {
+				setvar('arenas', 0);
+				return $(".small[onclick]").log('Прошло 5 боёв - надо сходить на главный экран').cl();
 			}
 			// записываемся, предварительно увеличив счётчик арен
 			if(empty(options.arenas)) options.arenas = 0;
-			setvar('arenas', ++options.arenas);
-			return $("a[href*='survival/join']:text(запис)").log("Записываемся в очередь на бой").cl();
+			// ###############################
+			if($(".c_ld_red:text(претенденты)").length) setvar('arenas', options.arenas + 1);
+			// ###############################
+			if(options.arenatype && options.arenas >= 10 && options.arenawins >= 5) {
+				options.arenadone[today] = true;
+				setvar('arenadone', options.arenadone);
+				console.log("Квестовые арены закончены! Переходим на главный экран");
+				return go('/', 5000);
+			} else return $("a[href*='survival/join']").log("Записываемся в очередь на бой").cl();
 		}
 		// ожидание боя
 		if($(".c_fe:text(бой начнется через)").length) {
 			console.log("Стоим в очереди на начало боя");
-			reload(3000);
-			return false;
+			return reload(3000);
 		}
 		// сдох
 		if($(".end .txt:text(вы пали)").length) return $("a.btn:text(обновить)").cl({log: "Сдох! Ждём конца боя", timer1: 5000});
 		// ошибка
 		if($(".msg.red:text(бой не существует)").length) return $("a[href*='surv']:text(арен)").log('Какая-то ошибка - возвращаемся на арену').cl();
+	}
+
+	// урфин
+	if(!options.nourfin && /^\/urfin\//.test(self.location.pathname)) {
+		console.log("Нашествие урфина");
+		// босс убит - идём дальше
+		if($("a[href*='urfin/next']").length) return $("a[href*='urfin/next']").log("Переходим к следующему боссу").cl();
+		// конец игры
+		if(hastxt(".gwar-win1", "армии урфина разбиты")) return go('/');
+		// нападаем
+		if($("a[href*='urfin/start']:notext(напасть сразу)").length) return $("a[href*='urfin/start']:notext(напасть сразу)").log("Нападаем на преспешника урфина").cl();
+		// бой
+		if($(".w3card").length) return attack3();
+		// меня убили
+		if($(".c_silver:text(босс жив, а вы нет)").length && $("a.btn:text(далее)").length) return $("a.btn:text(далее)").log("Убит!").cl();
+		// дошли до сюда - значит начался таймер - возвращаемся на главную страницу
 	}
 
 	// прочие действия
