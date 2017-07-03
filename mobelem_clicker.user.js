@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Повелители стихий. Кликер
 // @namespace   https://ok.elem.mobi/
-// @version     3.0.1
+// @version     3.0.2
 // @description Проводит дуэли, арены, кампании, мочет урфина и собирает награды за задания
 // @author      GoodVin
 // @match       *://*.elem.mobi/*
@@ -205,13 +205,22 @@ $(function(){
 					othertimeractivated = true;
 				}
 			}
-			// урфин
-			if(!options.nourfin && $("a.bttn.urfin:text(готовьтесь)").length) {
+			// урфин - перерыв
+			if(!options.nourfin && $("a.bttn.urfin.disable:text(готовьтесь)").length) {
 				tm = str2secs($("a.bttn.urfin").text());
 				if(tm > 0 && (mintime === 0 || tm < mintime)) {
 					mintime = tm;
 					othertimeractivated = true;
 				}
+			}
+			// урфин - нашествие
+			if(!options.nourfin && $("#urfin_cooldown").length) {
+				tm = str2secs($("#urfin_cooldown").text());
+				if(tm > 0 && (mintime === 0 || tm < mintime)) {
+					mintime = tm;
+					othertimeractivated = true;
+				}
+				if(mintime > 180) mintime = 180;
 			}
 			// кампания
 			if(!options.nocompany && $("#dungeon_cooldown").length) {
