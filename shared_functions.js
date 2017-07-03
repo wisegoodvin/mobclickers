@@ -65,9 +65,10 @@ function str2secs(str) {
 	for(i=0;i<a.length;i+=2) {
 		try {
 			var l = a[i+1].substring(0,1);
-				 if('ч' == l) res += parseInt(a[i],10) * 3600;
-			else if('м' == l) res += parseInt(a[i],10) * 60;
-			else if('с' == l) res += parseInt(a[i],10);
+			if('д' == l) res += parseInt(a[i], 10) * 86400;
+			else if('ч' == l) res += parseInt(a[i], 10) * 3600;
+			else if('м' == l) res += parseInt(a[i], 10) * 60;
+			else if('с' == l) res += parseInt(a[i], 10);
 		} catch(e) { res += 0; }
 	}
 	return res;
