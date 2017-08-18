@@ -73,32 +73,6 @@ function str2secs(str) {
 	}
 	return res;
 }
-function str2secs2(str) {
-	str = str.toLowerCase();
-	var res = 0;
-	var a = str.split(' ');
-	if(!a.length) return res;
-	for(var i=0;i<a.length;i++) {
-		var sub = a[i].trim();
-		if(!sub) continue;
-		if((re = /^(\d+)([дчмс])/i.exec(sub))) {
-			if('д' == re[2]) res += parseInt(re[1]) * 86400;
-			else if('ч' == re[2]) res += parseInt(re[1]) * 3600;
-			else if('м' == re[2]) res += parseInt(re[1]) * 60;
-			else if('с' == re[2]) res += parseInt(re[1]);
-		} else {
-			if(isNaN(sub)) continue;
-			try {
-				var l = a[i+1].substring(0,1);
-				if('д' == l) res += parseInt(a[i]) * 86400;
-				else if('ч' == l) res += parseInt(a[i]) * 3600;
-				else if('м' == l) res += parseInt(a[i]) * 60;
-				else if('с' == l) res += parseInt(a[i]);
-			} catch(e) { res += 0; }
-		}
-	}
-	return res;
-}
 
 // обновление страницы
 function reload(timer1, timer2) {
