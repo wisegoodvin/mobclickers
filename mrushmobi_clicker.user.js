@@ -1,49 +1,22 @@
 // ==UserScript==
 // @name		Разрушители. Кликер
-// @namespace	https://odkl.mrish.mobi/
-// @version		1.0
+// @namespace	https://odkl.mrush.mobi/
+// @version		1.1
 // @description	Сражается на арене, мочит квестовых боссов, собирает задания, продаёт шмотки, ходит в набег
 // @todo		Колизей и вторжение
 // @author		GoodVin
 // @match		*://*.mrush.mobi/*
 // @match		*://mrush.mobi/*
 // @require		https://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require		https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js
-// @downloadURL	https://github.com/wisegoodvin/mobclickers/raw/master/mrushmobi_clicker.user.js
-// @updateURL	https://github.com/wisegoodvin/mobclickers/raw/master/mrushmobi_clicker.user.js
+// @require		https://raw.githubusercontent.com/wisegoodvin/mobclickers/master/shared_functions.js
+// @downloadURL	https://raw.githubusercontent.com/wisegoodvin/mobclickers/master/mrushmobi_clicker.user.js
+// @updateURL	https://raw.githubusercontent.com/wisegoodvin/mobclickers/master/mrushmobi_clicker.user.js
 // @icon		https://static.mrush.mobi/view/image/icons/favicon.png?1
 // @grant		unsafeWindow
 // @grant		GM_setValue
 // @grant		GM_getValue
 // ==/UserScript==
 unsafeWindow.$ = jQuery;
-
-function str2secs2(str) {
-	str = str.toLowerCase();
-	var res = 0;
-	var a = str.split(' ');
-	if(!a.length) return res;
-	for(var i=0;i<a.length;i++) {
-		var sub = a[i].trim();
-		if(!sub) continue;
-		if((re = /^(\d+)([дчмс])/i.exec(sub))) {
-			if('д' == re[2]) res += parseInt(re[1]) * 86400;
-			else if('ч' == re[2]) res += parseInt(re[1]) * 3600;
-			else if('м' == re[2]) res += parseInt(re[1]) * 60;
-			else if('с' == re[2]) res += parseInt(re[1]);
-		} else {
-			if(isNaN(sub)) continue;
-			try {
-				var l = a[i+1].substring(0,1);
-				if('д' == l) res += parseInt(a[i]) * 86400;
-				else if('ч' == l) res += parseInt(a[i]) * 3600;
-				else if('м' == l) res += parseInt(a[i]) * 60;
-				else if('с' == l) res += parseInt(a[i]);
-			} catch(e) { res += 0; }
-		}
-	}
-	return res;
-}
 
 $(function(){
 	// сначала добавляем кнопку
@@ -67,10 +40,11 @@ $(function(){
 				var timer = str2secs2(this.textContent);
 				if(min === null || timer < min) min = timer;
 			});
+			if(min > 600) min = 600;
 			console.log('Перезагрузка страницы через '+min+' сек');
 			return reload(min * 1000);
 		} else {
-			var timer = rand(300000, 450000);
+			var timer = rand(540000, 660000);
 			console.log('Таймеры не найдены. Перезагрузка страницы через '+timer+' секунд');
 			return reload(timer);
 		}
@@ -121,4 +95,8 @@ $(function(){
 		if($(".cnr.bg_blue").length && $("a[href*='join_all_item']").length) return go('/join_all_item');
 		go('/', 3000, 5000);
 	}
+
+	// хз куда попали - редирект на начальную страницу через 30 секунд
+	console.log('Мы на неизвестной странице. Уходим на начальную через 30 секунд');
+	return go('/', 30000);
 });
