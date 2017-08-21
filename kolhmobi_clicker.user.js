@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      2.0
-// @description  Высаживает, поливает, удобряет, кормит животный, продаёт растения и собирает карты
+// @version      2.1
+// @description  Высаживает, поливает, удобряет, кормит животный, продаёт растения, окучивает ранчоб открывает сундуки и собирает карты
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
 // @match        *://kolhoz.mobi/*
@@ -27,7 +27,8 @@ $(function(){
 	$('<a href="#" style="position:absolute;z-index:10000;top:30px;right:20px;font-size:10pt;color:'+(options.sellertype ? 'lime' : 'red')+';" onclick="tglbool(\'sellertype\');return false;" title="Тип продаж: умные (вкл, после кормёжки (если вкл), раз в сутки) / простые (выкл, шанс - 10%)">[ тип продаж: '+(options.sellertype ? 'умн' : 'прост')+' ]</a>').appendTo("body");
 	$('<a href="#" style="position:absolute;z-index:10000;top:50px;right:20px;font-size:10pt;color:'+(options.feeder ? 'lime' : 'red')+';" onclick="tglbool(\'feeder\');return false;" title="Включить / выключить обслуживание загонов (раз в сутки или при окончании бабла)">[ автозагоны: в'+(options.feeder ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	$('<a href="#" style="position:absolute;z-index:10000;top:70px;right:20px;font-size:10pt;color:'+(options.rubys ? 'lime' : 'red')+';" onclick="tglbool(\'rubys\');return false;" title="Включить / выключить обмен денег на рубины (2 раза в сутки)">[ обмен рубинов: в'+(options.rubys ? '' : 'ы')+'кл ]</a>').appendTo("body");
-	$('<a href="#" style="position:absolute;z-index:10000;top:90px;right:20px;font-size:10pt;color:'+(options.cardcollector ? 'lime' : 'red')+';" onclick="tglbool(\'cardcollector\');return false;" title="Включить / выключить сбор карточек на овощебазе (каждые 3 часа +- пара минут)">[ сбор карт: в'+(options.rubys ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:90px;right:20px;font-size:10pt;color:'+(options.cardcollector ? 'lime' : 'red')+';" onclick="tglbool(\'cardcollector\');return false;" title="Включить / выключить сбор карточек на овощебазе (каждые 3 часа +- пара минут)">[ сбор карт: в'+(options.cardcollector ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:110px;right:20px;font-size:10pt;color:'+(options.rancho ? 'lime' : 'red')+';" onclick="tglbool(\'rancho\');return false;" title="Включить / выключить ранчо">[ ранчо: в'+(options.rancho ? '' : 'ы')+'кл ]</a>').appendTo("body");
 
 	// кончилось бабло
 	if($("a:text(продать товар из амбара)").length) {
@@ -125,6 +126,23 @@ $(function(){
 		else return go('/queue');
 	}
 
+	// ранчо
+	if(options.rancho && $("a[href*='rancho']").parent().find("span.title").length && /^\/my/i.test(self.location.pathname)) return go('/rancho');
+	if('/rancho' == self.location.pathname) {
+		console.log('Ранчо');
+		if($("a:text(собрать)").length) return $("a:text(собрать)").log("Собираем уражай").cl();
+		if($("a:text(выбрать)").length) return $("a:text(выбрать)").log("Выбираем растение").cl();
+		if($("a:text(посадить)").length) return $("a:text(посадить)").log("Сажаем растение").cl();
+		return go('/');
+	}
+	if(/AmericanSelectSeedPage/i.test(self.location.href)) {
+		console.log('Ранчо - выбор растения');
+		var all = $("img[src*='afarm']").toArray(), dis = $("img[style*='opacity']").toArray(), allow = [];
+		for(var i=0, l=all.length; i<l; i++) if(dis.indexOf(all[i]) < 0) allow.push(all[i]);
+		if(allow.length) return $(allow[allow.length - 1]).closest("a").cl();
+		else return go('/');
+	}
+
     // запуск таймера
     var txt = $(".ptm > ul > li").text().toLowerCase().replace(/\n/g,' ').replace(/\r/g,'').replace(/\s{1,}/g,' ').trim();
     if(!empty(txt)) {
@@ -137,7 +155,8 @@ $(function(){
             var t = str2secs(res[0]);
             if(empty(mintime) || t < mintime) mintime = t;
         }
-        mintime += 5;
+		if(options.rancho && mintime > 60) mintime = 60;
+        else mintime += 5;
         console.log('Никаких действие не сделано - запущен таймер на '+mintime+' сек. до ближайшего действия.');
         return go("/", mintime * 1000);
     }
