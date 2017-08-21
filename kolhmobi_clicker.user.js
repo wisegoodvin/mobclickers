@@ -127,7 +127,7 @@ $(function(){
 	}
 
 	// ранчо
-	if(options.rancho && $("a[href*='rancho']").parent().find("span.title").length && /^\/my/i.test(self.location.pathname)) return go('/rancho');
+	if(options.rancho && $("a[href*='rancho']").parent().find("span.title").length && /farm/i.test(self.location.pathname)) return go('/rancho');
 	if('/rancho' == self.location.pathname) {
 		console.log('Ранчо');
 		if($("a:text(собрать)").length) return $("a:text(собрать)").log("Собираем уражай").cl();
