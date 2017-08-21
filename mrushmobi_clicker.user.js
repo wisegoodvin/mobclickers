@@ -17,6 +17,9 @@
 // @grant		GM_getValue
 // ==/UserScript==
 unsafeWindow.$ = jQuery;
+var today = ("00" + (new Date()).getYear()).slice(-2) + ("00" + ((new Date()).getMonth() + 1)).slice(-2) + ("00" + (new Date()).getDate()).slice(-2);
+var time = parseInt(today + ("00" + (new Date()).getHours()).slice(-2) + ("00" + (new Date()).getMinutes()).slice(-2), 10);
+//console.log(typeof today, time);
 
 $(function(){
 	// сначала добавляем кнопку
@@ -34,6 +37,7 @@ $(function(){
 		if($("a:text(на арену)").length) return $("a:text(на арену)").cl({log:'Пошли на арену'});
 		if($("a:text(мой герой):text(+)").length) return go('/chest');
 		if($("a:text(задания):text(+)").length) return $("a:text(задания):text(+)").cl({log:'Надо собрать задания'});
+		if(options.invasiondate != today) return go('/invasion');
 		if($('span:text(откроется через)').length) {
 			var min = null;
 			$('span:text(откроется через)').each(function(){
@@ -94,6 +98,16 @@ $(function(){
 		console.log('Продажа шмоток');
 		if($(".cnr.bg_blue").length && $("a[href*='join_all_item']").length) return go('/join_all_item');
 		go('/', 3000, 5000);
+	}
+
+	// вторжение
+	if(self.location.pathname == '/invasion') {
+		console.log('Вторжение');
+		if($("div:text(бой начнется через)").length) {
+			console.log("Бой сегодня был - выходим");
+			setvar('invasiondate', today);
+			return go('/', 3000, 5000);
+		}
 	}
 
 	// хз куда попали - редирект на начальную страницу через 30 секунд
