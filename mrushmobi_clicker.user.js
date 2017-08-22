@@ -103,6 +103,7 @@ $(function(){
 	// вторжение
 	if(self.location.pathname == '/invasion') {
 		console.log('Вторжение');
+		if($("a:text(вступить в отряд)").length) return $("a:text(вступить в отряд)").cl();
 		if($("div:text(бой начнется через)").length) {
 			console.log("Бой сегодня был - выходим");
 			setvar('invasiondate', today);
