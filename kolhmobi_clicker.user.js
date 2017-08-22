@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      2.1
-// @description  Высаживает, поливает, удобряет, кормит животный, продаёт растения, окучивает ранчоб открывает сундуки и собирает карты
+// @version      2.2
+// @description  Высаживает, поливает, удобряет, кормит животный, продаёт растения, окучивает ранчо, открывает сундуки и собирает карты
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
 // @match        *://kolhoz.mobi/*
@@ -73,7 +73,8 @@ $(function(){
 		if(empty(options.selldate) || today != options.selldate) {
 			if(options.feeddate == today || !options.feeder) {
 				if('/warehouse' == self.location.pathname) {
-					if($(".block a:text(продать)").length) return $(".block a:text(продать)").cl(this);
+					if($(".block a:text(продать)").length) return $(".block a:text(продать)").cl();
+					if($(".block .title:text(ключ)").length) return $(".block a:text(открыть):first").cl();
 					if($(".block:text(амбар пуст)").length) {
 						setvar('selldate', today);
 						return go('/');
