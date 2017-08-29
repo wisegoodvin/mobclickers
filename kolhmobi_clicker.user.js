@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      2.2
+// @version      2.3
 // @description  Высаживает, поливает, удобряет, кормит животный, продаёт растения, окучивает ранчо, открывает сундуки и собирает карты
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
@@ -128,6 +128,13 @@ $(function(){
 	}
 
 	// ранчо
+	if(options.rancho && /AmericanSelectSeedPage/i.test(self.location.href)) {
+		console.log('Ранчо - выбор растения');
+		var all = $("img[src*='afarm']").toArray(), dis = $("img[style*='opacity']").toArray(), allow = [];
+		for(var i=0, l=all.length; i<l; i++) if(dis.indexOf(all[i]) < 0) allow.push(all[i]);
+		if(allow.length) return $(allow[allow.length - 1]).closest("a").cl();
+		else return go('/');
+	}
 	if(options.rancho && $("a[href*='rancho']").parent().find("span.title").length && /farm/i.test(self.location.pathname)) return go('/rancho');
 	if('/rancho' == self.location.pathname) {
 		console.log('Ранчо');
@@ -135,13 +142,6 @@ $(function(){
 		if($("a:text(выбрать)").length) return $("a:text(выбрать)").log("Выбираем растение").cl();
 		if($("a:text(посадить)").length) return $("a:text(посадить)").log("Сажаем растение").cl();
 		return go('/');
-	}
-	if(/AmericanSelectSeedPage/i.test(self.location.href)) {
-		console.log('Ранчо - выбор растения');
-		var all = $("img[src*='afarm']").toArray(), dis = $("img[style*='opacity']").toArray(), allow = [];
-		for(var i=0, l=all.length; i<l; i++) if(dis.indexOf(all[i]) < 0) allow.push(all[i]);
-		if(allow.length) return $(allow[allow.length - 1]).closest("a").cl();
-		else return go('/');
 	}
 
     // запуск таймера
