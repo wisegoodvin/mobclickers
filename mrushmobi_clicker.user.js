@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name		Разрушители. Кликер
 // @namespace	https://odkl.mrush.mobi/
-// @version		1.1
+// @version		1.2
 // @description	Сражается на арене, мочит квестовых боссов, собирает задания, продаёт шмотки, ходит в набег
 // @todo		Колизей и вторжение
 // @author		GoodVin
@@ -32,12 +32,12 @@ $(function(){
 	// На главной странице
 	if('/' == self.location.pathname) {
 		console.log('На главной странице');
-		if($("a:text(набег):text(+)").length) return $("a:text(набег):text(+)").cl({log:'Пошли в набег'});
-		if($("a[href*='lair']").length) return $("a[href*='lair']").cl({log:'Пошли в пещеру'});
-		if($("a:text(на арену)").length) return $("a:text(на арену)").cl({log:'Пошли на арену'});
-		if($("a:text(мой герой):text(+)").length) return go('/chest');
-		if($("a:text(задания):text(+)").length) return $("a:text(задания):text(+)").cl({log:'Надо собрать задания'});
-		if(options.invasiondate != today) return go('/invasion');
+		if($("a:text(набег):text(+):visible").length) return $("a:text(набег):text(+):visible").cl({log:'Пошли в набег',timer1:3000,timer2:5000});
+		if($("a[href*='lair']:visible").length) return $("a[href*='lair']:visible").cl({log:'Пошли в пещеру',timer1:3000,timer2:5000});
+		if($("a:text(на арену):visible").length) return $("a:text(на арену):visible").cl({log:'Пошли на арену',timer1:3000,timer2:5000});
+		if($("a:text(мой герой):text(+):visible").length) return go('/chest',3000,5000);
+		if($("a:text(задания):text(+):visible").length) return $("a:text(задания):text(+):visible").cl({log:'Надо собрать задания',timer1:3000,timer2:5000});
+		if(options.invasiondate != today) return go('/invasion',3000,5000);
 		if($('span:text(откроется через)').length) {
 			var min = null;
 			$('span:text(откроется через)').each(function(){
@@ -57,58 +57,60 @@ $(function(){
 	// набег
 	if(self.location.pathname == '/travel') {
 		console.log('В набеге');
-		if($("a:text(напасть)").length) return $("a:text(напасть)").cl({log:'Нападаем'});
-		if($("a:text(атаковать)").length) return $("a:text(атаковать)").cl({log:'Бьём'});
-		if($("a:text(новый набег)").length) return $("a:text(новый набег)").cl({log:'Новый набег'});
-		if($("a[href*='go_travel']:last").length) return $("a[href*='go_travel']:last").cl({log:'В новый набег'});
-		go('/', 3000, 5000);
+		if($("a:text(напасть):visible").length) return $("a:text(напасть):visible").cl({log:'Нападаем',timer1:3000,timer2:5000});
+		if($("a:text(атаковать):visible").length) return $("a:text(атаковать):visible").cl({log:'Бьём',timer1:3000,timer2:5000});
+		if($("a:text(новый набег):visible").length) return $("a:text(новый набег):visible").cl({log:'Новый набег',timer1:3000,timer2:5000});
+		if($("a[href*='go_travel']:last:visible").length) return $("a[href*='go_travel']:last:visible").cl({log:'В новый набег',timer1:3000,timer2:5000});
+		return go('/', 3000, 5000);
 	}
 
 	// задания
 	if(self.location.pathname == '/task/daily') {
 		console.log('Сбор ежедневных заданий');
-		if($("a[href*='Reward']").length) return $("a[href*='Reward']:first").cl({log:'Забираем награду'});
-		if($("a:text(сюжетные):text(+)").length) return $("a:text(сюжетные):text(+)").cl();
-		go('/', 3000, 5000);
+		if($('a:text(забрать):visible').length) return $('a:text(забрать):visible').cl({log:'Забираем награду',timer1:3000,timer2:5000});
+		if($("a:text(сюжетные):text(+):visible").length) return $("a:text(сюжетные):text(+):visible").cl({timer1:3000,timer2:5000});
+		return go('/', 3000, 5000);
 	}
 	if(self.location.pathname == '/task') {
 		console.log('Сбор сюжетных заданий');
-		if($("a[href*='Reward']").length) return $("a[href*='Reward']:first").cl({log:'Забираем награду'});
-		if($("a:text(ежедневные):text(+)").length) return $("a:text(ежедневные):text(+)").cl();
-		go('/', 3000, 5000);
+		if($('a:text(забрать):visible').length) return $('a:text(забрать):visible').cl({log:'Забираем награду',timer1:3000,timer2:5000});
+		if($("a:text(ежедневные):text(+):visible").length) return $("a:text(ежедневные):text(+):visible").cl({timer1:3000,timer2:5000});
+		return go('/', 3000, 5000);
 	}
 
 	// арена
 	if(self.location.pathname == '/arena') {
 		console.log('На арене');
-		if($("a:text(атаковать)").length) return $("a:text(атаковать)").cl({log:'Валим чувака'});
-		go('/', 3000, 5000);
+		if($("a:text(атаковать):visible").length) return $("a:text(атаковать):visible").cl({log:'Валим чувака',timer1:3000,timer2:5000});
+		return go('/', 3000, 5000);
 	}
 
 	// квесты
 	if(self.location.pathname == '/lair') {
 		console.log('Квесты');
-		if($("a[href*='action=attack'].red").length) return $("a[href*='action=attack'].red:first").cl({log:'Валим босса'});
-		if($("a:text(забрать награду)").length) return $("a:text(забрать награду)").cl({log:'Забираем награду'});
-		go('/', 3000, 5000);
+		if($('a.red:text(атак):visible').length) return $('a.red:text(атак):visible').cl({log:'Валим босса',timer1:3000,timer2:5000});
+		if($('a.red:text(бой):visible').length) return $('a.red:text(бой):visible').cl({log:'Валим босса',timer1:3000,timer2:5000});
+		if($("a:text(забрать награду):visible").length) return $("a:text(забрать награду)").cl({log:'Забираем награду',timer1:3000,timer2:5000});
+		return go('/', 3000, 5000);
 	}
 
 	// продажа шмоток
 	if(self.location.pathname == '/chest') {
 		console.log('Продажа шмоток');
-		if($(".cnr.bg_blue").length && $("a[href*='join_all_item']").length) return go('/join_all_item');
-		go('/', 3000, 5000);
+		if($(".cnr.bg_blue").length && $("a[href*='join_all_item']:visible").length) return go('/join_all_item',3000,5000);
+		return go('/', 3000, 5000);
 	}
 
 	// вторжение
 	if(self.location.pathname == '/invasion') {
 		console.log('Вторжение');
-		if($("a:text(вступить в отряд)").length) return $("a:text(вступить в отряд)").cl();
-		if($("div:text(бой начнется через)").length) {
+		if($("a:text(вступить в отряд):visible").length) return $("a:text(вступить в отряд):visible").cl({timer1:3000,timer2:5000});
+		if($("div:text(бой начнется через):visible").length) {
 			console.log("Бой сегодня был - выходим");
 			setvar('invasiondate', today);
 			return go('/', 3000, 5000);
 		}
+		return go('/', 3000, 5000);
 	}
 
 	// хз куда попали - редирект на начальную страницу через 30 секунд
