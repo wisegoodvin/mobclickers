@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      2.3
+// @version      2.4
 // @description  Высаживает, поливает, удобряет, кормит животный, продаёт растения, окучивает ранчо, открывает сундуки и собирает карты
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
@@ -16,7 +16,6 @@
 // @icon         http://kolhoz.mobi/favicon.ico
 // ==/UserScript==
 unsafeWindow.$ = jQuery;
-//console.log(navigator);
 var today = ("00" + (new Date()).getYear()).slice(-2) + ("00" + ((new Date()).getMonth() + 1)).slice(-2) + ("00" + (new Date()).getDate()).slice(-2);
 var time = parseInt(today + ("00" + (new Date()).getHours()).slice(-2) + ("00" + (new Date()).getMinutes()).slice(-2), 10);
 
@@ -29,6 +28,7 @@ $(function(){
 	$('<a href="#" style="position:absolute;z-index:10000;top:70px;right:20px;font-size:10pt;color:'+(options.rubys ? 'lime' : 'red')+';" onclick="tglbool(\'rubys\');return false;" title="Включить / выключить обмен денег на рубины (2 раза в сутки)">[ обмен рубинов: в'+(options.rubys ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	$('<a href="#" style="position:absolute;z-index:10000;top:90px;right:20px;font-size:10pt;color:'+(options.cardcollector ? 'lime' : 'red')+';" onclick="tglbool(\'cardcollector\');return false;" title="Включить / выключить сбор карточек на овощебазе (каждые 3 часа +- пара минут)">[ сбор карт: в'+(options.cardcollector ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	$('<a href="#" style="position:absolute;z-index:10000;top:110px;right:20px;font-size:10pt;color:'+(options.rancho ? 'lime' : 'red')+';" onclick="tglbool(\'rancho\');return false;" title="Включить / выключить ранчо">[ ранчо: в'+(options.rancho ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:130px;right:20px;font-size:10pt;color:'+(options.nursery ? 'lime' : 'red')+';" onclick="tglbool(\'nursery\');return false;" title="Включить / выключить питомник">[ питомник: в'+(options.nursery ? '' : 'ы')+'кл ]</a>').appendTo("body");
 
 	// кончилось бабло
 	if($("a:text(продать товар из амбара)").length) {
@@ -144,6 +144,47 @@ $(function(){
 		return go('/');
 	}
 
+	// питомник
+	if(options.nursery) {
+		if(self.location.pathname == '/mynursery') {
+			console.log('Питомник');
+			if($("a:text(сдать заказчику)").length) {
+				setvar('nurseryjob', null);
+				return $("a:text(сдать заказчику)").log('Сдаём заказчику').cl();
+			}
+			if($("a:text(забрать)").length) return $("a:text(забрать)").log('Забираем детёныша').cl();
+			if(!options.nurseryjob) {
+				console.log('Надо определиться с заданием');
+				var jobs = $(".content li:text(очк)"), need = null, max=0;
+				for(var i = 0; i<jobs.length;i++) {
+					var txt = jobs[i].textContent.trim();
+					var find = /^([^\(]+)[^\d]+(\d+)\s+очк.+(\d+)\s*\/\s*(\d+)/.exec(txt);
+
+					if(find) {
+						var ock = parseInt(find[2]);
+						var cnt = parseInt(find[4]);
+						var don = parseInt(find[3]);
+						console.log(find,txt);
+						if(ock/cnt > max && don != cnt) {
+							need = find[1].trim();
+							max = ock/cnt;
+						}
+					}
+				}
+				if(need && $("a:text(выращивать)").length) {
+					console.log('Определились - '+need);
+					setvar('nurseryjob', need);
+					return $("a:text(выращивать)").cl();
+				}
+			}
+		}
+		if(options.nurseryjob && self.location.pathname == '/nursery-select') {
+			console.log('Выбираем животное - '+options.nurseryjob);
+			if($("a:text("+options.nurseryjob+")").length) return $("a:text("+options.nurseryjob+")").log('Начинаем выращивать').cl();
+		}
+		if($(".framed a[href*='mynursery']").parent().find("span.title").length) return go('/mynursery');
+	}
+
     // запуск таймера
     var txt = $(".ptm > ul > li").text().toLowerCase().replace(/\n/g,' ').replace(/\r/g,'').replace(/\s{1,}/g,' ').trim();
     if(!empty(txt)) {
@@ -156,7 +197,7 @@ $(function(){
             var t = str2secs(res[0]);
             if(empty(mintime) || t < mintime) mintime = t;
         }
-		if(options.rancho && mintime > 60) mintime = 60;
+		if(options.rancho && mintime > 20) mintime = 20;
         else mintime += 5;
         console.log('Никаких действие не сделано - запущен таймер на '+mintime+' сек. до ближайшего действия.');
         return go("/", mintime * 1000);
@@ -167,4 +208,8 @@ $(function(){
 		console.log("Мы на странице с ошибкой - запущен таймер на переход к основному окну");
 		return go('/', rand(3000,5000));
 	}
+
+	// хз где - надо уйти в корень
+	console.log('Уйти на главную страницу');
+	return go('/', rand(3000,5000));
 });
