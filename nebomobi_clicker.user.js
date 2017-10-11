@@ -3,7 +3,6 @@
 // @namespace	https://odkl.vnebo.mobi/
 // @version		2.3
 // @description	Поднимает посетителей на лифте, делает операции с этажами
-// @todo		asd
 // @author		GoodVin
 // @match		*://*.vnebo.mobi/*
 // @match		*://vnebo.mobi/*
