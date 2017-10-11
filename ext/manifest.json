@@ -1,0 +1,25 @@
+{
+	"author": "GoodVin",
+	"background": {
+		"persistent": false,
+		"scripts": [ "events.js" ]
+	},
+	"browser_action": {
+		"default_icon": "om.png"
+	},
+	"description": "Данное расширение мониторит состояние ошибки на странице и обновляет её раз в 10 секунд. Так же планово перезагружает ВСЕ вкладки раз в 10 минут.",
+	"homepage_url": "http://igrotop.mobi",
+	"icons": {
+		"128": "om128.png",
+		"16": "om16.png",
+		"48": "om48.png"
+	},
+	"manifest_version": 2,
+	"name": "Расширение для игрушек в домене .mobi (Overmobile)",
+	"permissions": [
+		"webNavigation",
+		"tabs",
+		"alarms",
+		"*://*.mobi/*" ],
+	"version": "1.1"
+}
