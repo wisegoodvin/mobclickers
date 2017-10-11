@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      2.4
+// @version      2.4.1
 // @description  Высаживает, поливает, удобряет, кормит животный, продаёт растения, окучивает ранчо, открывает сундуки и собирает карты
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
@@ -73,6 +73,7 @@ $(function(){
 		if(empty(options.selldate) || today != options.selldate) {
 			if(options.feeddate == today || !options.feeder) {
 				if('/warehouse' == self.location.pathname) {
+					if($(".block a:text(да, подтверждаю)").length) return $(".block a:text(да, подтверждаю)").cl();
 					if($(".block a:text(продать)").length) return $(".block a:text(продать)").cl();
 					if($(".block .title:text(ключ)").length) return $(".block a:text(открыть):first").cl();
 					if($(".block:text(амбар пуст)").length) {
@@ -153,7 +154,8 @@ $(function(){
 				return $("a:text(сдать заказчику)").log('Сдаём заказчику').cl();
 			}
 			if($("a:text(забрать)").length) return $("a:text(забрать)").log('Забираем детёныша').cl();
-			if(!options.nurseryjob) {
+			if($("div:text(отменить задание)").length && $("a:text(подтверждаю)").length) return $("a:text(подтверждаю)").cl();
+		//	if(!options.nurseryjob) {
 				console.log('Надо определиться с заданием');
 				var jobs = $(".content li:text(очк)"), need = null, max=0;
 				for(var i = 0; i<jobs.length;i++) {
@@ -162,9 +164,13 @@ $(function(){
 
 					if(find) {
 						var ock = parseInt(find[2]);
-						var cnt = parseInt(find[4]);
 						var don = parseInt(find[3]);
-						console.log(find,txt);
+						var cnt = parseInt(find[4]);
+						if(don > 0) {
+							need = find[1].trim();
+							break;
+						}
+						if(cnt > 10 || (ock/cnt < 0.5 && jobs.length > 1)) return $(jobs[i]).find("a:text([x])").cl();
 						if(ock/cnt > max && don != cnt) {
 							need = find[1].trim();
 							max = ock/cnt;
@@ -176,7 +182,8 @@ $(function(){
 					setvar('nurseryjob', need);
 					return $("a:text(выращивать)").cl();
 				}
-			}
+		//	} else if($("a:text(выращивать)").length) return $("a:text(выращивать)").cl();
+		//	else return go('/');
 		}
 		if(options.nurseryjob && self.location.pathname == '/nursery-select') {
 			console.log('Выбираем животное - '+options.nurseryjob);
