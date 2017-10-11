@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Повелители стихий. Кликер
 // @namespace   https://ok.elem.mobi/
-// @version     3.0.2
+// @version     3.0.3
 // @description Проводит дуэли, арены, кампании, мочет урфина и собирает награды за задания
 // @author      GoodVin
 // @match       *://*.elem.mobi/*
@@ -143,7 +143,7 @@ function attack3() {
 	}
 
 	// был таймер
-	if(timer && maxcard.multi != 1.5) return $("a.btn.blue:text(обновить)").cl({timer1: 3000, log: 'Есть карты с таймером и нет с множителем 1.5 - ждём 3 секунды и обновляемся'});
+	if(timer && maxcard.multi != 1.5) return $("a.btn.blue:text(обновить)").cl({timer1: 4000, log: 'Есть карты с таймером и нет с множителем 1.5 - ждём 4 секунды и обновляемся'});
 
 	// кликаем по максимальной карте
 	return maxcard.link.cl();
