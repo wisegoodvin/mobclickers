@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      2.4.1
-// @description  Высаживает, поливает, удобряет, кормит животный, продаёт растения, окучивает ранчо, открывает сундуки и собирает карты
+// @version      2.5
+// @description  Высаживает, поливает, удобряет, кормит животный, продаёт растения, окучивает ранчо, заготавливает запасы, открывает сундуки и собирает карты
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
 // @match        *://kolhoz.mobi/*
@@ -29,6 +29,7 @@ $(function(){
 	$('<a href="#" style="position:absolute;z-index:10000;top:90px;right:20px;font-size:10pt;color:'+(options.cardcollector ? 'lime' : 'red')+';" onclick="tglbool(\'cardcollector\');return false;" title="Включить / выключить сбор карточек на овощебазе (каждые 3 часа +- пара минут)">[ сбор карт: в'+(options.cardcollector ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	$('<a href="#" style="position:absolute;z-index:10000;top:110px;right:20px;font-size:10pt;color:'+(options.rancho ? 'lime' : 'red')+';" onclick="tglbool(\'rancho\');return false;" title="Включить / выключить ранчо">[ ранчо: в'+(options.rancho ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	$('<a href="#" style="position:absolute;z-index:10000;top:130px;right:20px;font-size:10pt;color:'+(options.nursery ? 'lime' : 'red')+';" onclick="tglbool(\'nursery\');return false;" title="Включить / выключить питомник">[ питомник: в'+(options.nursery ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:150px;right:20px;font-size:10pt;color:'+(options.cellar ? 'lime' : 'red')+';" onclick="tglbool(\'cellar\');return false;" title="Включить / выключить погреб">[ погреб: в'+(options.cellar ? '' : 'ы')+'кл ]</a>').appendTo("body");
 
 	// кончилось бабло
 	if($("a:text(продать товар из амбара)").length) {
@@ -192,6 +193,29 @@ $(function(){
 		if($(".framed a[href*='mynursery']").parent().find("span.title").length) return go('/mynursery');
 	}
 
+	// погреб
+	if(options.cellar) {
+		if(self.location.pathname == '/mycellar' || self.location.pathname == '/user/recipebook') {
+			console.log('Погреб / книга рецептов');
+			if($("h3:text(рецепт:)").length) {
+				console.log("Рецепт выбран - закупаем не достающие ингридиенты и начинаем готовить");
+				if($("a:text(докупить состав):last").length) return $("a:text(докупить состав):last").cl({log:'Докупаем недостающие ингридиенты'});
+				else if($("a:text(поставить)").length) return $("a:text(поставить)").cl({log:'Заготавливаем'});
+			} else if($("a:text(выбрать из книги)").length) return $("a:text(выбрать из книги)").cl({log:'Выбираем рецепт из книги'});
+			if($("a:text(продать всё)").length) return $("a:text(продать всё)").cl({log:'Продаём всё'});
+			if($("a:text(заготовить всё)").length) return $("a:text(заготовить всё)").cl({log:'Заготавливаем всё'});
+			console.log('Надо выходить в корень');
+			return go("/");
+		}
+		if(self.location.pathname == '/recipe') {
+			console.log('Рецепты');
+			if($("a[href*='-recipes-']:first").length) return $("a[href*='-recipes-']:first").cl({log:'Выбираем первый рецепт'});
+			if($("a:text(поставить)").length) return $("a:text(поставить)").cl({log:'Заготавливаем'});
+			return go("/");
+		}
+		if($(".framed a[href*='mycellar']").parent().find("span.title").length) return go('/mycellar');
+	}
+
     // запуск таймера
     var txt = $(".ptm > ul > li").text().toLowerCase().replace(/\n/g,' ').replace(/\r/g,'').replace(/\s{1,}/g,' ').trim();
     if(!empty(txt)) {
@@ -204,9 +228,9 @@ $(function(){
             var t = str2secs(res[0]);
             if(empty(mintime) || t < mintime) mintime = t;
         }
-		if(options.rancho && mintime > 20) mintime = 20;
+		if(options.rancho && mintime > 30) mintime = 30;
         else mintime += 5;
-        console.log('Никаких действие не сделано - запущен таймер на '+mintime+' сек. до ближайшего действия.');
+        console.log('Никаких действие не сделано - запущен таймер на '+mintime+' сек. до проверки ближайшего действия.');
         return go("/", mintime * 1000);
     }
 
