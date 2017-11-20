@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      2.5
-// @description  Высаживает, поливает, удобряет, кормит животный, продаёт растения, окучивает ранчо, заготавливает запасы, открывает сундуки и собирает карты
+// @version      2.6.2
+// @description  Высаживает, поливает, удобряет, кормит животный, продаёт растения, окучивает ранчо, заготавливает запасы, разводит рыб, собирает награды за задания, открывает сундуки и собирает карты
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
 // @match        *://kolhoz.mobi/*
@@ -28,8 +28,11 @@ $(function(){
 	$('<a href="#" style="position:absolute;z-index:10000;top:70px;right:20px;font-size:10pt;color:'+(options.rubys ? 'lime' : 'red')+';" onclick="tglbool(\'rubys\');return false;" title="Включить / выключить обмен денег на рубины (2 раза в сутки)">[ обмен рубинов: в'+(options.rubys ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	$('<a href="#" style="position:absolute;z-index:10000;top:90px;right:20px;font-size:10pt;color:'+(options.cardcollector ? 'lime' : 'red')+';" onclick="tglbool(\'cardcollector\');return false;" title="Включить / выключить сбор карточек на овощебазе (каждые 3 часа +- пара минут)">[ сбор карт: в'+(options.cardcollector ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	$('<a href="#" style="position:absolute;z-index:10000;top:110px;right:20px;font-size:10pt;color:'+(options.rancho ? 'lime' : 'red')+';" onclick="tglbool(\'rancho\');return false;" title="Включить / выключить ранчо">[ ранчо: в'+(options.rancho ? '' : 'ы')+'кл ]</a>').appendTo("body");
-	$('<a href="#" style="position:absolute;z-index:10000;top:130px;right:20px;font-size:10pt;color:'+(options.nursery ? 'lime' : 'red')+';" onclick="tglbool(\'nursery\');return false;" title="Включить / выключить питомник">[ питомник: в'+(options.nursery ? '' : 'ы')+'кл ]</a>').appendTo("body");
-	$('<a href="#" style="position:absolute;z-index:10000;top:150px;right:20px;font-size:10pt;color:'+(options.cellar ? 'lime' : 'red')+';" onclick="tglbool(\'cellar\');return false;" title="Включить / выключить погреб">[ погреб: в'+(options.cellar ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	if(options.rancho) $('<a href="#" style="position:absolute;z-index:10000;top:130px;right:20px;font-size:10pt;color:lime;" onclick="tglbool(\'ranchopos\');return false;" title="Какое растение для ранчо брать?">[ растение на ранчо: '+(options.ranchopos ? 'перв' : 'посл')+' ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:150px;right:20px;font-size:10pt;color:'+(options.nursery ? 'lime' : 'red')+';" onclick="tglbool(\'nursery\');return false;" title="Включить / выключить питомник">[ питомник: в'+(options.nursery ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:170px;right:20px;font-size:10pt;color:'+(options.cellar ? 'lime' : 'red')+';" onclick="tglbool(\'cellar\');return false;" title="Включить / выключить погреб">[ погреб: в'+(options.cellar ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:190px;right:20px;font-size:10pt;color:'+(options.pool ? 'lime' : 'red')+';" onclick="tglbool(\'pool\');return false;" title="Включить / выключить пруды">[ пруды: в'+(options.pool ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:210px;right:20px;font-size:10pt;color:'+(options.quests ? 'lime' : 'red')+';" onclick="tglbool(\'quests\');return false;" title="Включить / выключить сбор наград за задания">[ сбор заданий: в'+(options.quests ? '' : 'ы')+'кл ]</a>').appendTo("body");
 
 	// кончилось бабло
 	if($("a:text(продать товар из амбара)").length) {
@@ -64,7 +67,7 @@ $(function(){
         // действия в амбаре
         if('/warehouse' == self.location.pathname) {
             console.log('Продажа из амбара');
-            if($(".block a:text(продать)").length) return $(".block a:text(продать)").cl(this);
+            if($(".block a:text(продать)").length) return $(".block a:text(продать)").cl();
             if($(".block:text(амбар пуст)").length) return go('/');
         }
         if(clicktimer) return false;
@@ -116,6 +119,15 @@ $(function(){
 		} else return go('/converter');
 	}
 
+	// сбор наград за задания
+	if(options.quests && (empty(options.questsdate) || 720 <= time - options.questsdate)) {
+		if('/tasks' == self.location.pathname) {
+			if($("a:text(забрать)").length) return $("a:text(забрать)").log("Забираем награду за задание").cl();
+			setvar('questsdate', time);
+			return go('/myfarm');
+		} else return go('/tasks');
+	}
+
 	// сбор карт
 	if(options.cardcollector && (empty(options.cardtime) || time - options.cardtime >= 181)) {
 		if('/queue' == self.location.pathname) {
@@ -130,20 +142,29 @@ $(function(){
 	}
 
 	// ранчо
-	if(options.rancho && /AmericanSelectSeedPage/i.test(self.location.href)) {
-		console.log('Ранчо - выбор растения');
-		var all = $("img[src*='afarm']").toArray(), dis = $("img[style*='opacity']").toArray(), allow = [];
-		for(var i=0, l=all.length; i<l; i++) if(dis.indexOf(all[i]) < 0) allow.push(all[i]);
-		if(allow.length) return $(allow[allow.length - 1]).closest("a").cl();
-		else return go('/');
-	}
-	if(options.rancho && $("a[href*='rancho']").parent().find("span.title").length && /farm/i.test(self.location.pathname)) return go('/rancho');
-	if('/rancho' == self.location.pathname) {
-		console.log('Ранчо');
-		if($("a:text(собрать)").length) return $("a:text(собрать)").log("Собираем уражай").cl();
-		if($("a:text(выбрать)").length) return $("a:text(выбрать)").log("Выбираем растение").cl();
-		if($("a:text(посадить)").length) return $("a:text(посадить)").log("Сажаем растение").cl();
-		return go('/');
+	if(options.rancho) {
+		// страница выбора семян
+		if(/AmericanSelectSeedPage/i.test(self.location.href)) {
+			console.log('Ранчо - выбор растения');
+			setvar('ranchotime', time);
+			var all = $("img[src*='afarm']").toArray(), dis = $("img[style*='opacity']").toArray(), allow = [];
+			for(var i=0, l=all.length; i<l; i++) if(dis.indexOf(all[i]) < 0) allow.push(all[i]);
+			if(allow.length) return $(allow[options.ranchopos ? allow.length - 1 : 0]).closest("a").cl();
+			else return go('/');
+		}
+		// страница с самим ранчо
+		if('/rancho' == self.location.pathname) {
+			console.log('Ранчо');
+			// допилить госзаказ
+			if($("a:text(собрать)").length) return $("a:text(собрать)").log("Собираем уражай").cl();
+			if($("a:text(посадить)").length) return $("a:text(посадить)").log("Сажаем растение").cl();
+			// не выбрано растение или давно не заходили в выбор (может что новое открылось)
+			if($("a:text(выбрать)").length) return $("a:text(выбрать)").log("Выбираем растение").cl();
+			if($("a:text(текущее растение)").length && options.ranchopos && (empty(options.ranchotime) || time - options.ranchotime >= 720)) return $("a:text(текущее растение)").log("Перевыбираем растение").cl();
+			return go('/');
+		}
+		// найдено какое-либо действие в меню - надо перейти на ранчо
+		if($("a[href*='rancho']").parent().find("span.title").length) return go('/rancho');
 	}
 
 	// питомник
@@ -190,7 +211,11 @@ $(function(){
 			console.log('Выбираем животное - '+options.nurseryjob);
 			if($("a:text("+options.nurseryjob+")").length) return $("a:text("+options.nurseryjob+")").log('Начинаем выращивать').cl();
 		}
-		if($(".framed a[href*='mynursery']").parent().find("span.title").length) return go('/mynursery');
+		// есть действия или давно не заходили
+		if($(".framed a[href*='mynursery']").parent().find('span.title').length || (empty(options.nurserytime) || time - options.nurserytime >= 120)) {
+			setvar('nurserytime', time);
+			return go('/mynursery');
+		}
 	}
 
 	// погреб
@@ -214,6 +239,18 @@ $(function(){
 			return go("/");
 		}
 		if($(".framed a[href*='mycellar']").parent().find("span.title").length) return go('/mycellar');
+	}
+
+	// пруды
+	if(options.pool) {
+		if(self.location.pathname == '/mypool') {
+			console.log('Пруды');
+			if($("a:text(продать)").length) return $("a:text(продать)").log("Продаём рыбу").cl();
+			if($("a:text(кормить)").length) return $("a:text(кормить)").log("Кормим рыбу").cl();
+			if($("a:text(разводить)").length) return $("a:text(разводить)").log("Разводим рыбу").cl();
+			return go('/myfarm');
+		}
+		if($(".framed a[href*='mypool']").parent().find("span.title").length) return go('/mypool');
 	}
 
     // запуск таймера
