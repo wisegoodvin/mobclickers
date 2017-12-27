@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      2.6.2
+// @version      2.6.3
 // @description  Высаживает, поливает, удобряет, кормит животный, продаёт растения, окучивает ранчо, заготавливает запасы, разводит рыб, собирает награды за задания, открывает сундуки и собирает карты
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
@@ -98,6 +98,7 @@ $(function(){
 				return go('/myfarm');
 			}
 			else if($("a[href*='harvest']:text(продать)").length) return $("a[href*='harvest']:text(продать)").log("Продаём звериную хрень").cl();
+			else if($("a[href*='harvest']:text(прибыль)").length) return $("a[href*='harvest']:text(прибыль)").log("Продаём звериную хрень").cl();
 			else if($("a[href*='food']:text(покормить)").length) return $("a[href*='food']:text(покормить)").log("Надо выбрать корм для скотинки").cl();
 			else if($("a[href*='lastFood']:text(покормить)").length) return $("a[href*='lastFood']:text(покормить)").log("Кормим скотинку").cl();
 			else if($("a[href*='fruits']:text(кормить)").length) return $("a[href*='fruits']:text(кормить)").log("Выбираем первую попавшуюся жрачку").cl();
