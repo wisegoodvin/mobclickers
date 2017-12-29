@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      2.6.3
+// @version      2.6.4
 // @description  Высаживает, поливает, удобряет, кормит животный, продаёт растения, окучивает ранчо, заготавливает запасы, разводит рыб, собирает награды за задания, открывает сундуки и собирает карты
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
 // @match        *://kolhoz.mobi/*
 // @require      https://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js
+// @require      https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?2017.12.29.1
 // @downloadURL  https://github.com/wisegoodvin/mobclickers/raw/master/kolhmobi_clicker.user.js
 // @updateURL    https://github.com/wisegoodvin/mobclickers/raw/master/kolhmobi_clicker.user.js
 // @grant        unsafeWindow
