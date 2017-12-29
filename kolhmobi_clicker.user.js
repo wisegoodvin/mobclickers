@@ -17,7 +17,7 @@
 // ==/UserScript==
 unsafeWindow.$ = jQuery;
 var today = ("00" + (new Date()).getYear()).slice(-2) + ("00" + ((new Date()).getMonth() + 1)).slice(-2) + ("00" + (new Date()).getDate()).slice(-2);
-var time = parseInt(today.replace(/\-/g, '') + ("00" + (new Date()).getHours()).slice(-2) + ("00" + (new Date()).getMinutes()).slice(-2), 10);
+var time = parseInt(today + ("00" + (new Date()).getHours()).slice(-2) + ("00" + (new Date()).getMinutes()).slice(-2), 10);
 
 $(function(){
 	// сначала добавляем кнопки
