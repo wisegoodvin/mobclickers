@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Повелители стихий. Кликер
 // @namespace   https://ok.elem.mobi/
-// @version     3.0.3
+// @version     3.1
 // @description Проводит дуэли, арены, кампании, мочет урфина и собирает награды за задания
 // @author      GoodVin
 // @match       *://*.elem.mobi/*
@@ -160,6 +160,7 @@ $(function(){
 	$('<a href="#" style="position:absolute;z-index:10000;top:90px;right:20px;font-size:10pt;color:'+(!options.nocompany ? 'lime' : 'red')+';" onclick="tglbool(\'nocompany\');return false;" title="Включить / выключить прохождение компаний">[ компании: в'+(!options.nocompany ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	$('<a href="#" style="position:absolute;z-index:10000;top:110px;right:20px;font-size:10pt;color:'+(!options.noquests ? 'lime' : 'red')+';" onclick="tglbool(\'noquests\');return false;" title="Включить / выключить сбор наград за квесты">[ сбор квестов: в'+(!options.noquests ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	$('<a href="#" style="position:absolute;z-index:10000;top:130px;right:20px;font-size:10pt;color:'+(!options.noduels ? 'lime' : 'red')+';" onclick="tglbool(\'noduels\');return false;" title="Включить / выключить дуэли">[ дуэли: в'+(!options.noduels ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:150px;right:20px;font-size:10pt;color:'+(options.buycards ? 'lime' : 'red')+';" onclick="tglbool(\'buycards\');return false;" title="Включить / выключить покупку карт за алмазы">[ карты за алмазы: в'+(!options.buycards ? '' : 'ы')+'кл ]</a>').appendTo("body");
 
 	// вылезла ежедневная награда
 	if($("a[href*='dailyreward']").length) return $("a[href*='dailyreward']").log("Получаем ежедневную награду").cl();
@@ -169,6 +170,7 @@ $(function(){
 		options.arenadone[today] = false;
 		setvar('arenadone', options.arenadone);
 	}
+	if(empty(options.cardsbuyed)) setvar("cardsbuyed", {});
 	// новый день - сбрасываем переменные
 	if(empty(options.lastactive) || options.lastactive != today) {
 		setvar('arenas', 0);
@@ -177,6 +179,8 @@ $(function(){
 		setvar('lastactive', today);
 		options.arenadone[today] = false;
 		setvar('arenadone', options.arenadone);
+		options.cardsbuyed[today] = false;
+		setvar('cardsbuyed', options.cardsbuyed);
 	}
 
 	// действия в корне
@@ -340,6 +344,20 @@ $(function(){
 		// меня убили
 		if($(".c_silver:text(босс жив, а вы нет)").length && $("a.btn:text(далее)").length) return $("a.btn:text(далее)").log("Убит!").cl();
 		// дошли до сюда - значит начался таймер - возвращаемся на главную страницу
+	}
+
+	// покупка карт
+	if(options.buycards && !options.cardsbuyed[today]) {
+		console.log('Покупаем карты');
+		if(/^\/shop\/cards\/diamond\//.test(self.location.pathname)) {
+			if($('a[href*="/shop/cards/diamond/buy/"]:first:text(купить)').length) return $('a[href*="/shop/cards/diamond/buy/"]:first:text(купить)').cl();
+			if($(".msg:text(желаете доплатить)").length) {
+				options.cardsbuyed[today] = true;
+				setvar('cardsbuyed', options.cardsbuyed);
+				return go('/');
+			}
+		}
+		return go('/shop/cards/diamond/');
 	}
 
 	// прочие действия
