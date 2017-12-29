@@ -169,4 +169,4 @@ Array.prototype.remove = function(from, to) {
 }
 
 // инициализация массива с настройками
-$(function(){ options = GM_getValue("options", options); });
+/*$(function(){ */options = GM_getValue("options", options);/* });*/
