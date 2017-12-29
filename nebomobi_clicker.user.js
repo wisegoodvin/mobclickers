@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name		Небоскребы: онлайн. Кликер
 // @namespace	https://odkl.vnebo.mobi/
-// @version		2.3
+// @version		2.3.1
 // @description	Поднимает посетителей на лифте, делает операции с этажами
 // @author		GoodVin
 // @match		*://*.vnebo.mobi/*
 // @match		*://vnebo.mobi/*
 // @require		https://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require		https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js
+// @require		https://github.com/wisegoodvin/mobclickers/raw/master/shared_functions.js?version=2017.12.29.1
 // @downloadURL	https://github.com/wisegoodvin/mobclickers/raw/master/nebomobi_clicker.user.js
 // @updateURL	https://github.com/wisegoodvin/mobclickers/raw/master/nebomobi_clicker.user.js
 // @icon		https://vnebo.mobi/favicon.ico
