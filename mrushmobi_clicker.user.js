@@ -8,7 +8,7 @@
 // @match		*://*.mrush.mobi/*
 // @match		*://mrush.mobi/*
 // @require		https://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require		https://raw.githubusercontent.com/wisegoodvin/mobclickers/master/shared_functions.js?version=2017.12.31.1
+// @require		https://raw.githubusercontent.com/wisegoodvin/mobclickers/master/shared_functions.js?version=2017.12.29.1
 // @downloadURL	https://raw.githubusercontent.com/wisegoodvin/mobclickers/master/mrushmobi_clicker.user.js
 // @updateURL	https://raw.githubusercontent.com/wisegoodvin/mobclickers/master/mrushmobi_clicker.user.js
 // @icon		https://static.mrush.mobi/view/image/icons/favicon.png?1
