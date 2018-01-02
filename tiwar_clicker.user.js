@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name        Битва титанов. Кликер
 // @namespace   https://ods.tiwar.mobi/
-// @version     1.0
-// @description Собирает золото, записывается на сражения + собирает доход, ходит в поход, спускается в пещеру, собирает награды в хижине мудреца
+// @version     1.1
+// @description Собирает золото, записывается на сражения + собирает доход, ходит в поход, спускается в пещеру, собирает награды в хижине мудреца, проходит карьеру, продаёт вещи из сумки
 // @author      GoodVin
 // @match       *://*.tiwar.mobi/*
 // @match       *://tiwar.mobi/*
@@ -21,6 +21,7 @@ var time = parseInt(today + ("00" + (new Date()).getHours()).slice(-2) + ("00" +
 var secs = Math.ceil(Date.now() / 1000);
 
 (function() {
+    if(typeof options.selldates == "undefined") setvar('selldates', []);
 	// сначала добавляем кнопки
 	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(options.scriptenabled ? 'lime' : 'red')+';" onclick="tglbool(\'scriptenabled\');return false;" title="Включить / выключить кликер">[ в'+(options.scriptenabled ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	if(!options.scriptenabled) return false;
@@ -29,6 +30,9 @@ var secs = Math.ceil(Date.now() / 1000);
 	$('<a href="#" style="position:absolute;z-index:10000;top:70px;right:20px;font-size:10pt;color:'+(options.fights ? 'lime' : 'red')+';" onclick="tglbool(\'fights\');return false;" title="Включить / выключить сражения (активные поля можно выбрать в разделе &quot;Сражения&quot;)">[ сражения: в'+(options.fights ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	$('<a href="#" style="position:absolute;z-index:10000;top:90px;right:20px;font-size:10pt;color:'+(options.cave ? 'lime' : 'red')+';" onclick="tglbool(\'cave\');return false;" title="Включить / выключить пещеру">[ пещера: в'+(options.cave ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	$('<a href="#" style="position:absolute;z-index:10000;top:110px;right:20px;font-size:10pt;color:'+(options.sage ? 'lime' : 'red')+';" onclick="tglbool(\'sage\');return false;" title="Включить / выключить хижину мудреца">[ хижина: в'+(options.sage ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:130px;right:20px;font-size:10pt;color:'+(options.career ? 'lime' : 'red')+';" onclick="tglbool(\'career\');return false;" title="Включить / выключить карьеру">[ карьера: в'+(options.career ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:150px;right:20px;font-size:10pt;color:'+(options.arena ? 'lime' : 'red')+';" onclick="tglbool(\'arena\');return false;" title="Включить / выключить арену">[ арена: в'+(options.arena ? '' : 'ы')+'кл ]</a>').appendTo("body");
+	$('<a href="#" style="position:absolute;z-index:10000;top:170px;right:20px;font-size:10pt;color:'+(options.sell ? 'lime' : 'red')+';" onclick="tglbool(\'sell\');return false;" title="Включить / выключить продажу шмота">[ продажа из сумки: в'+(options.sell ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	if(options.fights && '/fights/' == self.location.pathname) {
 		$('<a href="#" style="position:absolute;z-index:10000;bottom:10px;right:20px;font-size:10pt;color:'+(options.fightundying ? 'lime' : 'red')+';" onclick="tglbool(\'fightundying\');return false;" title="Включить / выключить долину бессмертных">[ долина бессмертных: в'+(options.fightundying ? '' : 'ы')+'кл ]</a>').appendTo("body");
 		$('<a href="#" style="position:absolute;z-index:10000;bottom:30px;right:20px;font-size:10pt;color:'+(options.fightking ? 'lime' : 'red')+';" onclick="tglbool(\'fightking\');return false;" title="Включить / выключить короля бессмертных">[ король бессмертных: в'+(options.fightking ? '' : 'ы')+'кл ]</a>').appendTo("body");
@@ -51,11 +55,19 @@ var secs = Math.ceil(Date.now() / 1000);
 		if(options.fights && secs - options.fightslastcheck >= 7140 && $("a:text(сражения (+))").length) return go('/fights/');
 		// пещера
 		if(options.cave && $("a:text(пещера (+))").length) return $("a:text(пещера (+))").cl();
+        // карьера
+		if(options.career && $("a:text(карьера (+))").length) return $("a:text(карьера (+))").cl();
+        // арена
+        if(options.arena && secs - options.arenalastcheck >= 7140 && $("a:text(арена (+))").length) return go('/arena/');
+
+        // продажа лута
+        if(options.sell && options.selldates.indexOf(today) < 0) return go('/inv/bag/');
 
 		// таймер на пещеру
 		var timer = $('a:text(пещера ()').text().match(/\((\d+(:\d+(:\d+)?)?)\)/)[1].split(':').reverse(),
 			t = (parseInt(timer[2] || 0) * 60 * 60) + (parseInt(timer[1] || 0) * 60) + parseInt(timer[0]);
-		console.log('Действий нет - запускаем таймер пещеры на ' + t + ' секунд');
+        if(t > 300) t = 300;
+		console.log('Действий нет - запускаем таймер на ' + t + ' секунд');
 		return go('/', (t + 2) * 1000);
 	}
 
@@ -107,6 +119,33 @@ var secs = Math.ceil(Date.now() / 1000);
 		if($('a:text(забрать)').length) return $('a:text(забрать):first').cl();
 		return go('/');
 	}
+
+    // карьера
+	if(options.career && /^\/career/.test(self.location.pathname)) {
+        console.log('Карьера');
+        if($('a[href*="career/attack"]:text(атаковать)').length) return $('a[href*="career/attack"]:text(атаковать)').cl({log:"Атакуем"});
+        if($('a[href*="career/take"]:text(забрать награду):notext(забрать награду за)').length) return $('a[href*="career/take"]:text(забрать награду):notext(забрать награду за)').cl({log:"Забираем награду"});
+        if($('.cntr:text(турнир откроется через:)').length) return go('/');
+    }
+
+	// сражения
+	if(options.arena && /^\/arena/.test(self.location.pathname)) {
+        console.log('Арена');
+        if($('.center:text(для нападения надо минимум)').length) {
+            setvar('arenalastcheck', secs);
+            return go('/');
+        }
+        if($('a[href*="/arena/attack/"]:visible').length) return $('a[href*="/arena/attack/"]:visible:first').cl({log:"Мочим!"});
+    }
+
+    // продажа лута из сумки
+    if(options.sell && options.selldates.indexOf(today) < 0 && /^\/inv\/bag\//.test(self.location.pathname)) {
+        console.log('Продажа лута');
+        options.selldates.push(today)
+        setvar('selldates', options.selldates);
+        if($('a:text(продать за)').length) return $('a:text(продать все):last').cl({log:"Продаём всё"});
+        if($('span:text(сумка пуста)').length) return go('/');
+    }
 
 	// сражения
 	if(options.fights) {
