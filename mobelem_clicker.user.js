@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Повелители стихий. Кликер
 // @namespace   https://ok.elem.mobi/
-// @version     3.1.2
+// @version     3.1.3
 // @description Проводит дуэли, арены, кампании, мочет урфина и собирает награды за задания
 // @author      GoodVin
 // @match       *://*.elem.mobi/*
@@ -352,7 +352,7 @@ $(function(){
 	if(options.buycards && !options.cardsbuyed[today]) {
 		console.log('Покупаем карты');
 		if(/^\/shop\/cards\/diamond\//.test(self.location.pathname)) {
-			if($('a[href*="/shop/cards/diamond/buy/"]:first:text(купить)').length) return $('a[href*="/shop/cards/diamond/buy/"]:first:text(купить)').cl();
+			if($('a[href*="/shop/cards/diamond/buy/"]:first:text(купить),a[href*="/shop/cards/diamond/buy/"]:first:text(бесплатно!)').length) return $('a[href*="/shop/cards/diamond/buy/"]:first:text(купить),a[href*="/shop/cards/diamond/buy/"]:first:text(бесплатно!)').cl();
 			if($(".msg:text(желаете доплатить)").length) {
 				options.cardsbuyed[today] = true;
 				setvar('cardsbuyed', options.cardsbuyed);
