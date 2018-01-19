@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Битва титанов. Кликер
 // @namespace   https://ods.tiwar.mobi/
-// @version     1.1.1
+// @version     1.1.2
 // @description Собирает золото, записывается на сражения + собирает доход, ходит в поход, спускается в пещеру, собирает награды в хижине мудреца, проходит карьеру, продаёт вещи из сумки
 // @author      GoodVin
 // @match       *://*.tiwar.mobi/*
@@ -118,6 +118,7 @@ var secs = Math.ceil(Date.now() / 1000);
 	if(options.sage && /^\/relic/.test(self.location.pathname)) {
 		console.log('Хижина мудреца - реликвии');
 		if($('a:text(забрать)').length) return $('a:text(забрать):first').cl();
+		if($('a:text(получить)').length) return $('a:text(получить):first').cl();
 		return go('/');
 	}
 
