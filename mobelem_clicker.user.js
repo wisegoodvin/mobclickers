@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Повелители стихий. Кликер
 // @namespace   https://ok.elem.mobi/
-// @version     3.1.3
+// @version     3.2
 // @description Проводит дуэли, арены, кампании, мочет урфина и собирает награды за задания
 // @author      GoodVin
 // @match       *://*.elem.mobi/*
@@ -161,6 +161,7 @@ $(function(){
 	$('<a href="#" style="position:absolute;z-index:10000;top:110px;right:20px;font-size:10pt;color:'+(!options.noquests ? 'lime' : 'red')+';" onclick="tglbool(\'noquests\');return false;" title="Включить / выключить сбор наград за квесты">[ сбор квестов: в'+(!options.noquests ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	$('<a href="#" style="position:absolute;z-index:10000;top:130px;right:20px;font-size:10pt;color:'+(!options.noduels ? 'lime' : 'red')+';" onclick="tglbool(\'noduels\');return false;" title="Включить / выключить дуэли">[ дуэли: в'+(!options.noduels ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	$('<a href="#" style="position:absolute;z-index:10000;top:150px;right:20px;font-size:10pt;color:'+(options.buycards ? 'lime' : 'red')+';" onclick="tglbool(\'buycards\');return false;" title="Включить / выключить покупку карт за алмазы">[ карты за алмазы: в'+(!options.buycards ? '' : 'ы')+'кл ]</a>').appendTo("body");
+    $('<a href="#" style="position:absolute;z-index:10000;top:170px;right:20px;font-size:10pt;color:'+(options.guildarena ? 'lime' : 'red')+';" onclick="tglbool(\'guildarena\');return false;" title="Включить / выключить арену гильдий">[ арена гильдий: в'+(!options.guildarena ? '' : 'ы')+'кл ]</a>').appendTo("body");
 
 	// вылезла ежедневная награда
 	if($("a[href*='dailyreward']").length) return $("a[href*='dailyreward']").log("Получаем ежедневную награду").cl();
@@ -186,8 +187,10 @@ $(function(){
 	// действия в корне
 	if("/" == self.location.pathname) {
 		console.log("Действия на главной странице");
+        // скоро арена гильдий? всё нахиг - надо идти!
+        if(options.guildarena && $(".tline:text(арена гильдий: до начала)").length) return go('/guild/arena/');
 		// есть не взятые квесты
-		if(!options.noquests && $(".bbtn a[href='/daily/'] img").length) $(".bbtn a[href='/daily/']").log("Есть не взятые квесты").cl();
+		else if(!options.noquests && $(".bbtn a[href='/daily/'] img").length) $(".bbtn a[href='/daily/']").log("Есть не взятые квесты").cl();
 		// урфин активен
 		else if(!options.nourfin && $(".bttn.urfin:text(босс)").length) return $(".bttn.urfin").log("Урфин активен").cl();
 		// кампания активна
@@ -347,6 +350,20 @@ $(function(){
 		if($(".c_silver:text(босс жив, а вы нет)").length && $("a.btn:text(далее)").length) return $("a.btn:text(далее)").log("Убит!").cl();
 		// дошли до сюда - значит начался таймер - возвращаемся на главную страницу
 	}
+
+    // арена гильдий
+    if(options.guildarena && /^\/guild\/arena\//.test(self.location.pathname)) {
+        console.log('Арена гильдий');
+		// идёт бой
+		if($(".w3card").length) return attack2();
+        // запись
+        if($("a:text(записаться)").length) return $("a:text(записаться)").log('Записываемся').cl();
+        // арена окончена
+        if($(".nmsg:text(ваш союз занял)").length) return go('/');
+        // ждём начала арены - идёт таймер
+        console.log('Ждём начало боя');
+        return;
+    }
 
 	// покупка карт
 	if(options.buycards && !options.cardsbuyed[today]) {
