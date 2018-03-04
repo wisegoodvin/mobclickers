@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Колхоз. Кликер
 // @namespace    https://odkl.kolhoz.mobi/
-// @version      2.6.6
+// @version      2.6.7
 // @description  Высаживает, поливает, удобряет, кормит животный, продаёт растения, окучивает ранчо, заготавливает запасы, разводит рыб, собирает награды за задания, открывает сундуки и собирает карты
 // @author       GoodVin
 // @match        *://*.kolhoz.mobi/*
@@ -18,6 +18,7 @@
 unsafeWindow.$ = jQuery;
 var today = ("00" + (new Date()).getYear()).slice(-2) + ("00" + ((new Date()).getMonth() + 1)).slice(-2) + ("00" + (new Date()).getDate()).slice(-2);
 var time = parseInt(today + ("00" + (new Date()).getHours()).slice(-2) + ("00" + (new Date()).getMinutes()).slice(-2), 10);
+console.log(options);
 
 $(function(){
 	// сначала добавляем кнопки
@@ -144,24 +145,33 @@ $(function(){
 
 	// ранчо
 	if(options.rancho) {
+        // через 10 сборов надо обновить
+        /*if((options.ranchocnt == null || undefined == options.ranchocnt) ||
+           (!options.ranchopos && options.ranchocnt >= 10 && $("a:text(текущее растение)").length)) {
+            setvar('ranchocnt', 0);
+            return $("a:text(текущее растение)").log('Перевыбираем растение').cl();
+        }*/
 		// страница выбора семян
 		if(/AmericanSelectSeedPage/i.test(self.location.href)) {
 			console.log('Ранчо - выбор растения');
 			setvar('ranchotime', time);
 			var all = $("img[src*='afarm']").toArray(), dis = $("img[style*='opacity']").toArray(), allow = [];
 			for(var i=0, l=all.length; i<l; i++) if(dis.indexOf(all[i]) < 0) allow.push(all[i]);
-			if(allow.length) return $(allow[options.ranchopos ? allow.length - 1 : 0]).closest("a").cl();
+			if(allow.length) return $(allow[!options.ranchopos ? allow.length - 1 : 0]).closest("a").cl();
 			else return go('/');
 		}
 		// страница с самим ранчо
 		if('/rancho' == self.location.pathname) {
 			console.log('Ранчо');
 			// допилить госзаказ
-			if($("a:text(собрать)").length) return $("a:text(собрать)").log("Собираем уражай").cl();
+			if($("a:text(собрать)").length) {
+                setvar('ranchocnt', options.ranchocnt + 1);
+                return $("a:text(собрать)").log("Собираем уражай").cl();
+            }
 			if($("a:text(посадить)").length) return $("a:text(посадить)").log("Сажаем растение").cl();
 			// не выбрано растение или давно не заходили в выбор (может что новое открылось)
 			if($("a:text(выбрать)").length) return $("a:text(выбрать)").log("Выбираем растение").cl();
-			if($("a:text(текущее растение)").length && options.ranchopos && (empty(options.ranchotime) || time - options.ranchotime >= 720)) return $("a:text(текущее растение)").log("Перевыбираем растение").cl();
+			if($("a:text(текущее растение)").length && !options.ranchopos && (empty(options.ranchotime) || time - options.ranchotime >= 720)) return $("a:text(текущее растение)").log("Перевыбираем растение").cl();
 			return go('/');
 		}
 		// найдено какое-либо действие в меню - надо перейти на ранчо
