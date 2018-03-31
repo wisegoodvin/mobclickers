@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Повелители стихий. Кликер
 // @namespace   https://ok.elem.mobi/
-// @version     3.2
+// @version     3.2.2
 // @description Проводит дуэли, арены, кампании, мочет урфина и собирает награды за задания
 // @author      GoodVin
 // @match       *://*.elem.mobi/*
@@ -17,7 +17,7 @@
 // ==/UserScript==
 unsafeWindow.$ = jQuery;
 var othertimeractivated = false;
-var today = "" + (new Date()).getFullYear() + "-" + (new Date()).getMonth() + "-" + (new Date()).getDate();
+var today = ("00" + (new Date()).getYear()).slice(-2) + ("00" + ((new Date()).getMonth() + 1)).slice(-2) + ("00" + (new Date()).getDate()).slice(-2);
 
 // функция вычисления дамага у пары карт
 this.getdmg = function(idx) {
@@ -151,6 +151,7 @@ function attack3() {
 
 // основные действия
 $(function(){
+    //console.log(options);
 	// сначала добавляем кнопки
 	$('<a href="#" style="position:absolute;z-index:10000;top:10px;right:20px;font-size:10pt;color:'+(options.scriptenabled ? 'lime' : 'red')+';" onclick="tglbool(\'scriptenabled\');return false;" title="Включить / выключить кликер">[ в'+(options.scriptenabled ? '' : 'ы')+'кл ]</a>').appendTo("body");
 	if(!options.scriptenabled) return false;
@@ -167,7 +168,7 @@ $(function(){
 	if($("a[href*='dailyreward']").length) return $("a[href*='dailyreward']").log("Получаем ежедневную награду").cl();
 	// инициализируем флаг арены
 	if(empty(options.arenadone)) setvar("arenadone", {});
-	if(!options.noarena && !options.arenatype) {
+	if(!options.noarena && options.arenatype && 'undefined' == options.arenadone[today]) {
 		options.arenadone[today] = false;
 		setvar('arenadone', options.arenadone);
 	}
@@ -198,9 +199,17 @@ $(function(){
 		// дуэли активны
 		else if(!options.noduels && $(".bttn.duels:text(дуэли:)").length) return $(".bttn.duels").log("Дуэли активы").cl();
 		// арена активна
-		else if(!options.noarena && !options.arenadone[today] && $("a[href*='surv']:text(арена)").length) return $("a[href*='surv']:text(арена)").log("Заходим на арену").cl();
+		else if(!options.noarena && $("a[href*='surv']:text(арена)").length) {
+            if(!$("a[href*='surv']:text(арена)").hasClass('disable')) {
+                options.arenadone[today] = false;
+                options.arenawins = 0;
+                setvar('arenadone', options.arenadone);
+                setvar('arenawins', options.arenawins);
+            }
+            if(!options.arenadone[today]) return $("a[href*='surv']:text(арена)").log("Заходим на арену").cl();
+        }
 		// надо купить карты?
-		else if(options.buycards && !options.cardsbuyed[today]) return go('/shop/cards/diamond/');
+		if(options.buycards && !options.cardsbuyed[today]) return go('/shop/cards/diamond/');
 		// таймеры
 		else {
 			// устанавливаем таймер на любое доступное действие
@@ -295,46 +304,6 @@ $(function(){
 		else return $(".cntr a:text(искать еще)").log("Противник слишком сильный - ищем другого. Или просто обновляем страницу").cl();
 	}
 
-	// действия на арене
-	if(!options.noarena && !options.arenadone[today] && /^\/survival\//.test(self.location.pathname)) {
-		console.log("Действия на арене");
-		// идёт бой
-		if($(".w3card").length) return attack2();
-		// запись
-		if($("a[href*='survival/join']").length && !options.arenadone[today]) {
-			// увеличиваем нужные счётчики
-			if(options.arenatype) {
-				if(empty(options.arenawins)) setvar('arenawins', 0);
-				if($(".c_win:text(победи)").length) setvar('arenawins', options.arenawins + 1);
-			}
-			// перекидываемся на главный экран
-			if(!options.arenatype && options.arenas >= 5) {
-				setvar('arenas', 0);
-				return $(".small[onclick]").log('Прошло 5 боёв - надо сходить на главный экран').cl();
-			}
-			// записываемся, предварительно увеличив счётчик арен
-			if(empty(options.arenas)) options.arenas = 0;
-			// ###############################
-			if($(".c_ld_red:text(претенденты)").length) setvar('arenas', options.arenas + 1);
-			// ###############################
-			if(options.arenatype && options.arenas >= 10 && options.arenawins >= 5) {
-				options.arenadone[today] = true;
-				setvar('arenadone', options.arenadone);
-				console.log("Квестовые арены закончены! Переходим на главный экран");
-				return go('/', 5000);
-			} else return $("a[href*='survival/join']").log("Записываемся в очередь на бой").cl();
-		}
-		// ожидание боя
-		if($(".c_fe:text(бой начнется через)").length) {
-			console.log("Стоим в очереди на начало боя");
-			return reload(3000);
-		}
-		// сдох
-		if($(".end .txt:text(вы пали)").length) return $("a.btn:text(обновить)").cl({log: "Сдох! Ждём конца боя", timer1: 5000});
-		// ошибка
-		if($(".msg.red:text(бой не существует)").length) return $("a[href*='surv']:text(арен)").log('Какая-то ошибка - возвращаемся на арену').cl();
-	}
-
 	// урфин
 	if(!options.nourfin && /^\/urfin\//.test(self.location.pathname)) {
 		console.log("Нашествие урфина");
@@ -377,6 +346,51 @@ $(function(){
 			}
 		}
 		return go('/shop/cards/diamond/');
+	}
+
+	// действия на арене
+	if(!options.noarena && !options.arenadone[today] && /^\/survival\//.test(self.location.pathname)) {
+		// записываемся, предварительно увеличив счётчик арен
+		if(typeof options.arenas == 'undefined') options.arenas = 0;
+		console.log("Действия на арене");
+		// идёт бой
+		if($(".w3card").length) return attack2();
+		// запись
+		if($("a[href*='survival/join']").length && !options.arenadone[today]) {
+			// увеличиваем нужные счётчики
+			if(options.arenatype) {
+				if(typeof options.arenawins == 'undefined') {setvar('arenawins', 0);console.log('wins0');}
+				if($(".nmsg:text(побед)").length) setvar('arenawins', options.arenawins + 1);
+			}
+			// ###############################
+			if($(".c_ld_red:text(претенденты)").length) {
+                setvar('arenas', options.arenas + 1);
+                setvar('arenafrommainscreen', false);
+            }
+			// ###############################
+			if(options.arenatype && options.arenas >= 10 && options.arenawins >= 5) {
+				options.arenadone[today] = true;
+				setvar('arenadone', options.arenadone);
+				console.log("Квестовые арены закончены! Переходим на главный экран");
+				return go('/', 5000);
+			}
+			// перекидываемся на главный экран
+			if(!options.arenafrommainscreen && ((!options.arenatype && options.arenas >= 5) || (options.arenatype && options.arenas % 5 == 0))) {
+                 setvar('arenafrommainscreen', true);
+                return $(".small[onclick]").log('Прошло 5 боёв - надо сходить на главный экран').cl();
+            }
+            // никаких условий нет - записываемся снова
+            return $("a[href*='survival/join']").log("Записываемся в очередь на бой").cl();
+		}
+		// ожидание боя
+		if($(".c_fe:text(бой начнется через)").length) {
+			console.log("Стоим в очереди на начало боя");
+			return reload(3000);
+		}
+		// сдох
+		if($(".end .txt:text(вы пали)").length) return $("a.btn:text(обновить)").cl({log: "Сдох! Ждём конца боя", timer1: 5000});
+		// ошибка
+		if($(".msg.red:text(бой не существует)").length) return $("a[href*='surv']:text(арен)").log('Какая-то ошибка - возвращаемся на арену').cl();
 	}
 
 	// прочие действия
